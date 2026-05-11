@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品增长与运营 - PM Skill Galaxy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif; background: #0a0a1a; color: #fff; overflow-x: hidden; }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #b829dd); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .logo-text { font-size: 1.25rem; font-weight: 600; color: white; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .nav-links a:hover { color: #00d4ff; }
+        .hero { position: relative; z-index: 1; padding: 8rem 2rem 4rem; text-align: center; }
+        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); max-width: 700px; margin: 0 auto 2rem; line-height: 1.6; }
+        .stats-bar { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #4ecdc4, #b829dd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-label { font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin-top: 0.25rem; }
+        .content { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; }
+        .section-title .icon { width: 8px; height: 32px; background: linear-gradient(180deg, #4ecdc4, #b829dd); border-radius: 4px; }
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .skill-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .skill-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent); transition: left 0.7s; }
+        .skill-card:hover::before { left: 100%; }
+        .skill-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .skill-card.orchestrator { border-left: 3px solid #4ecdc4; }
+        .skill-card.pipeline { border-left: 3px solid rgba(255, 255, 255, 0.3); }
+        .skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .skill-type { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .orchestrator .skill-type { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+        .pipeline .skill-type { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+        .skill-version { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); }
+        .skill-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff; }
+        .skill-desc { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); line-height: 1.5; margin-bottom: 1rem; }
+        .skill-submodule { display: inline-block; padding: 0.25rem 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); }
+        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.9rem; transition: all 0.3s; margin-bottom: 2rem; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+        .footer { position: relative; z-index: 1; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 2rem; text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 4rem; }
+        @media (max-width: 768px) { .skills-grid { grid-template-columns: 1fr; } .stats-bar { flex-wrap: wrap; gap: 1rem; } .nav-links { display: none; } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a1a; }
+        ::-webkit-scrollbar-thumb { background: #3a3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5a5aaa; }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">PM</div>
+                <span class="logo-text">Skill Galaxy</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html#modules">模块</a>
+                <a href="../index.html#flow">流程</a>
+                <a href="https://github.com/LuckyOneTwoThree/pm-skill" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-icon">📣</div>
+        <h1>产品增长与运营</h1>
+        <p>获取用户、提升留存、商业化，覆盖获客渠道、激活引导、留存策略、收入增长全链路</p>
+        <div class="stats-bar">
+            <div class="stat-item"><div class="stat-value">4</div><div class="stat-label">编排器</div></div>
+            <div class="stat-item"><div class="stat-value">10</div><div class="stat-label">Pipeline</div></div>
+            <div class="stat-item"><div class="stat-value">0</div><div class="stat-label">导航</div></div>
+            <div class="stat-item"><div class="stat-value">14</div><div class="stat-label">总计</div></div>
+        </div>
+    </section>
+    <div class="content">
+        <a href="../index.html#modules" class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回模块列表
+        </a>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>编排器 (Orchestrators)</h2><div class="skills-grid">
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">acquisition-orchestrator</h3>
+              <p class="skill-desc">用户获取指挥官。当需要评估获客渠道或优化获客漏斗时使用，包括19种渠道评估与分级、获客漏斗转化分析与优化。关键词：用户获取、获客渠道、漏斗优化、渠道评估、获客策略。</p>
+              <span class="skill-submodule">获客</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">activation-orchestrator</h3>
+              <p class="skill-desc">用户激活指挥官。当需要识别Aha Moment或设计Onboarding流程时使用，包括Aha Moment候选行为识别与验证、差异化Onboarding路径设计。关键词：用户激活、Aha Moment、Onboarding、新用户引导、激活策略。</p>
+              <span class="skill-submodule">激活</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">retention-orchestrator</h3>
+              <p class="skill-desc">用户留存指挥官。当需要降低流失率或提升用户参与度时使用，包括流失预警模型构建与干预、用户分层运营与参与度提升。关键词：用户留存、流失预警、分层运营、参与度、留存策略。</p>
+              <span class="skill-submodule">留存</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">revenue-orchestrator</h3>
+              <p class="skill-desc">商业化指挥官。当需要优化付费转化或提升收入时使用，包括付费漏斗分析与瓶颈定位、NRR追踪与流失预警、升级与增购策略设计。关键词：商业化、付费漏斗、NRR、增购策略、收入优化。</p>
+              <span class="skill-submodule">收入</span>
+            </div>
+  </div></div>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>Pipeline Skills</h2><div class="skills-grid">
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">growth-model</h3>
+              <p class="skill-desc">增长模式自动诊断Pipeline。分析产品特征、用户数据和商业模式，自动匹配最优增长模式（PLG/SLG/MLG/混合），输出增长飞轮模型、关键约束条件和瓶颈分析。关键词：增长模式、PLG、SLG、增长飞轮、增长诊断。</p>
+              <span class="skill-submodule">获客</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">acquisition-channel</h3>
+              <p class="skill-desc">获客渠道自动评估Pipeline。分析19种获客渠道数据，计算渠道规模、转化率、ROI，输出渠道分级报告（主力/测试/观察渠道）。关键词：获客渠道、渠道评估、ROI分析、渠道分级、获客策略。</p>
+              <span class="skill-submodule">获客</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">acquisition-optimize</h3>
+              <p class="skill-desc">获客漏斗自动优化Pipeline。分析获客漏斗数据，识别最大流失节点，自动生成优化方案和A/B测试设计。关键词：获客优化、漏斗优化、转化优化、A/B测试、获客漏斗。</p>
+              <span class="skill-submodule">获客</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">activation-aha</h3>
+              <p class="skill-desc">Aha Moment自动工程化Pipeline。分析留存数据和行为数据，自动识别Aha Moment候选，测量到达率，识别最短路径，输出Onboarding优化建议。关键词：Aha Moment、激活时刻、用户激活、到达率、Onboarding优化。</p>
+              <span class="skill-submodule">激活</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">activation-onboarding</h3>
+              <p class="skill-desc">Onboarding自动优化Pipeline。分析Onboarding数据和用户分群，自动生成个性化引导策略，设计A/B测试方案。关键词：Onboarding、新用户引导、引导优化、个性化引导、用户激活。</p>
+              <span class="skill-submodule">激活</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">retention-churn</h3>
+              <p class="skill-desc">流失预警与干预自动化Pipeline。构建流失预警模型，识别高风险用户，自动化触发干预动作，追踪干预效果。关键词：流失预警、流失干预、流失模型、用户挽留、流失分析。</p>
+              <span class="skill-submodule">留存</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">retention-engagement</h3>
+              <p class="skill-desc">用户分层自动化运营Pipeline。基于用户生命周期阶段进行分层，分析各层特征，自动生成运营策略，设计个性化触达内容。关键词：用户分层、分层运营、生命周期运营、个性化触达、参与度提升。</p>
+              <span class="skill-submodule">留存</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">revenue-funnel</h3>
+              <p class="skill-desc">付费漏斗自动分析Pipeline。分析注册到付费的全链路数据，识别付费障碍，计算转化优化建议，优化付费墙时机。关键词：付费漏斗、付费转化、付费墙、转化优化、付费分析。</p>
+              <span class="skill-submodule">收入</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">revenue-nrr</h3>
+              <p class="skill-desc">NRR自动追踪与预警Pipeline。自动计算净收入留存率，分析NRR趋势，识别流失预警，识别扩张收入机会。关键词：NRR、净收入留存、收入留存、流失预警、扩张收入。</p>
+              <span class="skill-submodule">收入</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">revenue-upsell</h3>
+              <p class="skill-desc">升级转化自动化Pipeline。识别升级信号用户，自动生成个性化升级内容，优化触达时机，设计A/B测试。关键词：升级转化、增购、Upsell、升级策略、交叉销售。</p>
+              <span class="skill-submodule">收入</span>
+            </div>
+  </div></div>
+    </div>
+    <footer class="footer"><p>Made with ❤️ by lucky | 126 个 AI Agent Skills</p></footer>
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [], mouseX = 0, mouseY = 0;
+        const colors = ['#00d4ff', '#b829dd', '#ff006e', '#00f5ff', '#ffffff'];
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; initStars(); }
+        function initStars() { stars = []; const count = Math.floor((width * height) / 4000); for (let i = 0; i < count; i++) { stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2, size: Math.random() * 2 + 0.5, opacity: Math.random(), speed: Math.random() * 0.5 + 0.1, color: colors[Math.floor(Math.random() * colors.length)] }); } }
+        function animate() { ctx.fillStyle = 'rgba(10, 10, 26, 0.1)'; ctx.fillRect(0, 0, width, height); stars.forEach(star => { const parallaxX = (mouseX - width / 2) * 0.02 * star.z; const parallaxY = (mouseY - height / 2) * 0.02 * star.z; const x = star.x + parallaxX; const y = star.y + parallaxY; star.opacity += (Math.random() - 0.5) * 0.02; star.opacity = Math.max(0.1, Math.min(1, star.opacity)); ctx.beginPath(); ctx.arc(x, y, star.size, 0, Math.PI * 2); ctx.fillStyle = star.color; ctx.globalAlpha = star.opacity; ctx.fill(); ctx.globalAlpha = 1; star.y += star.speed; if (star.y > height) { star.y = 0; star.x = Math.random() * width; } }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        resize(); animate();
+    </script>
+</body>
+</html>

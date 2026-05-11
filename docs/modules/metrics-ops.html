@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品度量运营 - PM Skill Galaxy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif; background: #0a0a1a; color: #fff; overflow-x: hidden; }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #b829dd); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .logo-text { font-size: 1.25rem; font-weight: 600; color: white; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .nav-links a:hover { color: #00d4ff; }
+        .hero { position: relative; z-index: 1; padding: 8rem 2rem 4rem; text-align: center; }
+        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); max-width: 700px; margin: 0 auto 2rem; line-height: 1.6; }
+        .stats-bar { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #ff6b6b, #b829dd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-label { font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin-top: 0.25rem; }
+        .content { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; }
+        .section-title .icon { width: 8px; height: 32px; background: linear-gradient(180deg, #ff6b6b, #b829dd); border-radius: 4px; }
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .skill-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .skill-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent); transition: left 0.7s; }
+        .skill-card:hover::before { left: 100%; }
+        .skill-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .skill-card.orchestrator { border-left: 3px solid #ff6b6b; }
+        .skill-card.pipeline { border-left: 3px solid rgba(255, 255, 255, 0.3); }
+        .skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .skill-type { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .orchestrator .skill-type { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+        .pipeline .skill-type { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+        .skill-version { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); }
+        .skill-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff; }
+        .skill-desc { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); line-height: 1.5; margin-bottom: 1rem; }
+        .skill-submodule { display: inline-block; padding: 0.25rem 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); }
+        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.9rem; transition: all 0.3s; margin-bottom: 2rem; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+        .footer { position: relative; z-index: 1; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 2rem; text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 4rem; }
+        @media (max-width: 768px) { .skills-grid { grid-template-columns: 1fr; } .stats-bar { flex-wrap: wrap; gap: 1rem; } .nav-links { display: none; } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a1a; }
+        ::-webkit-scrollbar-thumb { background: #3a3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5a5aaa; }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">PM</div>
+                <span class="logo-text">Skill Galaxy</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html#modules">模块</a>
+                <a href="../index.html#flow">流程</a>
+                <a href="https://github.com/LuckyOneTwoThree/pm-skill" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-icon">📈</div>
+        <h1>产品度量运营</h1>
+        <p>上线后数据分析和实验验证，通过漏斗分析、留存分析、异常检测等手段持续优化产品</p>
+        <div class="stats-bar">
+            <div class="stat-item"><div class="stat-value">3</div><div class="stat-label">编排器</div></div>
+            <div class="stat-item"><div class="stat-value">8</div><div class="stat-label">Pipeline</div></div>
+            <div class="stat-item"><div class="stat-value">0</div><div class="stat-label">导航</div></div>
+            <div class="stat-item"><div class="stat-value">11</div><div class="stat-label">总计</div></div>
+        </div>
+    </section>
+    <div class="content">
+        <a href="../index.html#modules" class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回模块列表
+        </a>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>编排器 (Orchestrators)</h2><div class="skills-grid">
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">analysis-orchestrator</h3>
+              <p class="skill-desc">数据分析指挥官。当需要进行产品数据异常检测、漏斗分析或留存分析时使用，包括异常自动检测与归因、核心业务漏斗转化分析、用户留存与Aha Moment识别。关键词：数据分析、异常检测、漏斗分析、留存分析、Aha Moment。</p>
+              <span class="skill-submodule">数据分析</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">experiment-orchestrator</h3>
+              <p class="skill-desc">实验验证指挥官。当需要设计或执行A/B测试实验时使用，包括实验方案自动设计、实验执行与统计显著性分析。关键词：A/B测试、实验设计、统计显著性、实验执行、数据实验。</p>
+              <span class="skill-submodule">实验设计</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">decision-orchestrator</h3>
+              <p class="skill-desc">数据驱动决策指挥官。当需要将数据分析结果转化为决策行动时使用，包括DACE决策循环执行、洞察转化为行动方案、数据驱动文化建设。关键词：数据决策、DACE循环、数据洞察、决策框架、数据文化。</p>
+              <span class="skill-submodule">决策支持</span>
+            </div>
+  </div></div>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>Pipeline Skills</h2><div class="skills-grid">
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">analysis-anomaly</h3>
+              <p class="skill-desc">Pipeline 4 - 自动化数据分析引擎。AI自动执行7×24小时运行，负责指标健康检查、异常检测、自动归因和洞察推送。当发现指标异常时输出完整的异常报告。关键词：异常检测、数据分析、自动归因、指标监控、异常报告。</p>
+              <span class="skill-submodule">数据分析</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">analysis-funnel</h3>
+              <p class="skill-desc">Pipeline 5 - 漏斗自动分析。AI自动执行全量漏斗计算、多维下钻、流失节点识别和趋势分析。当需要分析用户转化路径时使用此Pipeline。关键词：漏斗分析、转化分析、流失节点、转化率、用户路径。</p>
+              <span class="skill-submodule">数据分析</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">analysis-retention</h3>
+              <p class="skill-desc">Pipeline 6 - 留存自动分析。AI自动执行全量留存曲线、Cohort分析、Aha Moment搜索和流失预警。当需要分析用户粘性和流失风险时使用此Pipeline。关键词：留存分析、Cohort分析、Aha Moment、流失预警、用户粘性。</p>
+              <span class="skill-submodule">数据分析</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">experiment-design</h3>
+              <p class="skill-desc">Pipeline 8 - A/B测试自动设计。AI自动执行假设结构化、指标选择、样本量计算、分流方案设计和实验配置生成。当需要设计新的A/B测试实验时使用此Pipeline。关键词：A/B测试设计、实验设计、样本量计算、分流方案、假设检验。</p>
+              <span class="skill-submodule">实验设计</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">experiment-execution</h3>
+              <p class="skill-desc">Pipeline 9 - A/B测试自动执行与分析。AI自动执行实验运行中的监控和实验结束后的分析，包括统计检验、业务意义评估、多维下钻、新奇效应检测和决策建议。关键词：A/B测试执行、统计检验、实验分析、新奇效应、实验监控。</p>
+              <span class="skill-submodule">实验设计</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">decision-dace</h3>
+              <p class="skill-desc">Pipeline 11 - DACE循环自动化。Define/Analyze由AI自动执行，Conclude由AI辅助人类决策，Execute由AI追踪执行效果。实现数据驱动决策的持续迭代闭环。关键词：DACE循环、数据决策、决策闭环、数据驱动、决策框架。</p>
+              <span class="skill-submodule">决策支持</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">decision-insight</h3>
+              <p class="skill-desc">Pipeline 12 - 数据洞察自动转化。AI自动执行从分析结果到故事化洞察的转化，生成决策建议并标注决策边界。当需要将数据转化为可执行洞察时使用此Pipeline。关键词：数据洞察、洞察转化、决策建议、故事化分析、数据故事。</p>
+              <span class="skill-submodule">决策支持</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">decision-culture</h3>
+              <p class="skill-desc">Pipeline 13 - 数据文化自动化。通过每日、每周、每月、每季的自动化报告体系，推动数据驱动决策文化的落地。确保团队始终基于数据做决策。关键词：数据文化、数据报告、数据驱动、报告体系、数据素养。</p>
+              <span class="skill-submodule">决策支持</span>
+            </div>
+  </div></div>
+    </div>
+    <footer class="footer"><p>Made with ❤️ by lucky | 126 个 AI Agent Skills</p></footer>
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [], mouseX = 0, mouseY = 0;
+        const colors = ['#00d4ff', '#b829dd', '#ff006e', '#00f5ff', '#ffffff'];
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; initStars(); }
+        function initStars() { stars = []; const count = Math.floor((width * height) / 4000); for (let i = 0; i < count; i++) { stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2, size: Math.random() * 2 + 0.5, opacity: Math.random(), speed: Math.random() * 0.5 + 0.1, color: colors[Math.floor(Math.random() * colors.length)] }); } }
+        function animate() { ctx.fillStyle = 'rgba(10, 10, 26, 0.1)'; ctx.fillRect(0, 0, width, height); stars.forEach(star => { const parallaxX = (mouseX - width / 2) * 0.02 * star.z; const parallaxY = (mouseY - height / 2) * 0.02 * star.z; const x = star.x + parallaxX; const y = star.y + parallaxY; star.opacity += (Math.random() - 0.5) * 0.02; star.opacity = Math.max(0.1, Math.min(1, star.opacity)); ctx.beginPath(); ctx.arc(x, y, star.size, 0, Math.PI * 2); ctx.fillStyle = star.color; ctx.globalAlpha = star.opacity; ctx.fill(); ctx.globalAlpha = 1; star.y += star.speed; if (star.y > height) { star.y = 0; star.x = Math.random() * width; } }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        resize(); animate();
+    </script>
+</body>
+</html>

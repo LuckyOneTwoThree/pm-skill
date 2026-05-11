@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品开发与上线 - PM Skill Galaxy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif; background: #0a0a1a; color: #fff; overflow-x: hidden; }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #b829dd); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .logo-text { font-size: 1.25rem; font-weight: 600; color: white; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .nav-links a:hover { color: #00d4ff; }
+        .hero { position: relative; z-index: 1; padding: 8rem 2rem 4rem; text-align: center; }
+        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); max-width: 700px; margin: 0 auto 2rem; line-height: 1.6; }
+        .stats-bar { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #00f5ff, #b829dd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-label { font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin-top: 0.25rem; }
+        .content { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; }
+        .section-title .icon { width: 8px; height: 32px; background: linear-gradient(180deg, #00f5ff, #b829dd); border-radius: 4px; }
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .skill-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .skill-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent); transition: left 0.7s; }
+        .skill-card:hover::before { left: 100%; }
+        .skill-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .skill-card.orchestrator { border-left: 3px solid #00f5ff; }
+        .skill-card.pipeline { border-left: 3px solid rgba(255, 255, 255, 0.3); }
+        .skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .skill-type { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .orchestrator .skill-type { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+        .pipeline .skill-type { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+        .skill-version { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); }
+        .skill-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff; }
+        .skill-desc { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); line-height: 1.5; margin-bottom: 1rem; }
+        .skill-submodule { display: inline-block; padding: 0.25rem 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); }
+        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.9rem; transition: all 0.3s; margin-bottom: 2rem; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+        .footer { position: relative; z-index: 1; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 2rem; text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 4rem; }
+        @media (max-width: 768px) { .skills-grid { grid-template-columns: 1fr; } .stats-bar { flex-wrap: wrap; gap: 1rem; } .nav-links { display: none; } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a1a; }
+        ::-webkit-scrollbar-thumb { background: #3a3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5a5aaa; }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">PM</div>
+                <span class="logo-text">Skill Galaxy</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html#modules">模块</a>
+                <a href="../index.html#flow">流程</a>
+                <a href="https://github.com/LuckyOneTwoThree/pm-skill" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-icon">🚀</div>
+        <h1>产品开发与上线</h1>
+        <p>开发交付、质量保证、发布上线，覆盖任务拆解、开发协同、质量检查、发布管理全流程</p>
+        <div class="stats-bar">
+            <div class="stat-item"><div class="stat-value">4</div><div class="stat-label">编排器</div></div>
+            <div class="stat-item"><div class="stat-value">8</div><div class="stat-label">Pipeline</div></div>
+            <div class="stat-item"><div class="stat-value">0</div><div class="stat-label">导航</div></div>
+            <div class="stat-item"><div class="stat-value">12</div><div class="stat-label">总计</div></div>
+        </div>
+    </section>
+    <div class="content">
+        <a href="../index.html#modules" class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回模块列表
+        </a>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>编排器 (Orchestrators)</h2><div class="skills-grid">
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">development-orchestrator</h3>
+              <p class="skill-desc">开发协作指挥官。当需要将PRD转化为开发任务、进行代码审查或保持PRD与开发同步时使用，包括任务分解、自动代码审查、PRD同步检查。关键词：开发协作、任务分解、代码审查、PRD同步、Sprint规划。</p>
+              <span class="skill-submodule">开发管理</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">quality-orchestrator</h3>
+              <p class="skill-desc">质量保障指挥官。当需要进行自动化测试或验收检查时使用，包括测试用例自动生成与执行、自动化验收标准校验。关键词：质量保障、自动化测试、验收检查、测试覆盖率、质量门禁。</p>
+              <span class="skill-submodule">质量保证</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">release-orchestrator</h3>
+              <p class="skill-desc">发布策略指挥官。当需要制定灰度发布策略或生成发布检查清单时使用，包括灰度发布阶段规划与监控、发布检查清单自动生成与追踪。关键词：灰度发布、发布策略、发布检查清单、Feature Flag、持续部署。</p>
+              <span class="skill-submodule">发布上线</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">retrospective-orchestrator</h3>
+              <p class="skill-desc">上线复盘指挥官。当产品发布后需要进行复盘时使用，包括发布效果数据自动收集、复盘报告生成、行动项追踪闭环。关键词：上线复盘、发布复盘、效果评估、行动项追踪、持续改进。</p>
+              <span class="skill-submodule">迭代回顾</span>
+            </div>
+  </div></div>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>Pipeline Skills</h2><div class="skills-grid">
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">development-task-breakdown</h3>
+              <p class="skill-desc">Pipeline 1：PRD任务分解消费与开发深化。将PRD Pipeline输出的任务分解结构进行技术深化、Sprint分配和依赖检测，输出可直接进入开发阶段的Epic→Story→Task结构。🤖 AI自动执行。关键词：任务分解、Epic拆分、Story拆分、Sprint任务、开发规划。</p>
+              <span class="skill-submodule">开发管理</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">development-auto-review</h3>
+              <p class="skill-desc">Pipeline 2：需求变更影响分析自动化。接收变更请求，自动进行变更分类（L1-L4）、影响传播分析、重评审必要性判断和版本联动分析，输出变更影响报告。🤖 AI自动执行。关键词：代码审查、自动Review、PR审查、代码质量、开发审查。</p>
+              <span class="skill-submodule">开发管理</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">development-prd-sync</h3>
+              <p class="skill-desc">Pipeline 3：PRD双向同步自动化。实现PRD与设计稿、代码、测试用例的双向同步，自动检测不一致并生成更新提案。包含正向同步（PRD→设计/代码/测试用例）和逆向同步（代码→PRD）。🤖 AI自动执行。关键词：PRD同步、需求同步、双向同步、需求追踪、一致性检查。</p>
+              <span class="skill-submodule">开发管理</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">quality-auto-test</h3>
+              <p class="skill-desc">Pipeline 4：测试用例自动生成与追踪。从PRD验收标准、用户故事和异常流程自动生成测试用例，并与代码提交自动关联追踪。包含Happy Path、边界用例和异常用例生成。🤖 AI自动执行。关键词：自动化测试、测试用例生成、测试覆盖率、边界测试、异常测试。</p>
+              <span class="skill-submodule">质量保证</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">quality-auto-acceptance</h3>
+              <p class="skill-desc">Pipeline 5：自动化验收执行。基于Given-When-Then格式的验收标准自动执行验收，包括测试环境准备、自动化执行、结果判定和失败分析。P0/P1失败将阻止上线。🤖 AI自动执行。关键词：自动化验收、验收测试、Given-When-Then、质量门禁、上线检查。</p>
+              <span class="skill-submodule">质量保证</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">release-gradual</h3>
+              <p class="skill-desc">Pipeline 6：灰度发布自动执行。执行渐进式灰度发布，从1%到10%到50%到100%，各阶段自动监控指标并判断是否进入下一阶段，支持P0指标恶化时自动回滚。🤖 AI自动执行。关键词：灰度发布、渐进式发布、Feature Flag、自动回滚、发布策略。</p>
+              <span class="skill-submodule">发布上线</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">release-auto-checklist</h3>
+              <p class="skill-desc">Pipeline 7：上线Checklist自动生成与追踪。自动生成T-7/T-1/发布中/T+24h/T+72h的发布Checklist，逐项自动检查和人工确认，支持未完成项告警和状态追踪。🤖 AI自动执行。关键词：发布Checklist、上线检查、发布流程、发布追踪、上线准备。</p>
+              <span class="skill-submodule">发布上线</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">retrospective-auto</h3>
+              <p class="skill-desc">Pipeline 8：上线复盘自动化。执行T+2周效果复盘、工程质量复盘、发布过程复盘，自动生成改进行动项。包含目标vs实际对比、Bug统计、技术债务分析等。🤖 AI自动执行。关键词：上线复盘、发布复盘、效果评估、行动项、持续改进。</p>
+              <span class="skill-submodule">迭代回顾</span>
+            </div>
+  </div></div>
+    </div>
+    <footer class="footer"><p>Made with ❤️ by lucky | 126 个 AI Agent Skills</p></footer>
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [], mouseX = 0, mouseY = 0;
+        const colors = ['#00d4ff', '#b829dd', '#ff006e', '#00f5ff', '#ffffff'];
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; initStars(); }
+        function initStars() { stars = []; const count = Math.floor((width * height) / 4000); for (let i = 0; i < count; i++) { stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2, size: Math.random() * 2 + 0.5, opacity: Math.random(), speed: Math.random() * 0.5 + 0.1, color: colors[Math.floor(Math.random() * colors.length)] }); } }
+        function animate() { ctx.fillStyle = 'rgba(10, 10, 26, 0.1)'; ctx.fillRect(0, 0, width, height); stars.forEach(star => { const parallaxX = (mouseX - width / 2) * 0.02 * star.z; const parallaxY = (mouseY - height / 2) * 0.02 * star.z; const x = star.x + parallaxX; const y = star.y + parallaxY; star.opacity += (Math.random() - 0.5) * 0.02; star.opacity = Math.max(0.1, Math.min(1, star.opacity)); ctx.beginPath(); ctx.arc(x, y, star.size, 0, Math.PI * 2); ctx.fillStyle = star.color; ctx.globalAlpha = star.opacity; ctx.fill(); ctx.globalAlpha = 1; star.y += star.speed; if (star.y > height) { star.y = 0; star.x = Math.random() * width; } }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        resize(); animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理与执行 - PM Skill Galaxy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif; background: #0a0a1a; color: #fff; overflow-x: hidden; }
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1rem 2rem; background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #b829dd); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .logo-text { font-size: 1.25rem; font-weight: 600; color: white; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: rgba(255, 255, 255, 0.7); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .nav-links a:hover { color: #00d4ff; }
+        .hero { position: relative; z-index: 1; padding: 8rem 2rem 4rem; text-align: center; }
+        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.1rem; color: rgba(255, 255, 255, 0.7); max-width: 700px; margin: 0 auto 2rem; line-height: 1.6; }
+        .stats-bar { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #ffd93d, #b829dd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-label { font-size: 0.875rem; color: rgba(255, 255, 255, 0.6); margin-top: 0.25rem; }
+        .content { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .section { margin-bottom: 4rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; }
+        .section-title .icon { width: 8px; height: 32px; background: linear-gradient(180deg, #ffd93d, #b829dd); border-radius: 4px; }
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .skill-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .skill-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent); transition: left 0.7s; }
+        .skill-card:hover::before { left: 100%; }
+        .skill-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .skill-card.orchestrator { border-left: 3px solid #ffd93d; }
+        .skill-card.pipeline { border-left: 3px solid rgba(255, 255, 255, 0.3); }
+        .skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .skill-type { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .orchestrator .skill-type { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+        .pipeline .skill-type { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
+        .skill-version { font-size: 0.8rem; color: rgba(255, 255, 255, 0.4); }
+        .skill-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; color: #fff; }
+        .skill-desc { font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); line-height: 1.5; margin-bottom: 1rem; }
+        .skill-submodule { display: inline-block; padding: 0.25rem 0.75rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); }
+        .back-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.9rem; transition: all 0.3s; margin-bottom: 2rem; }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+        .footer { position: relative; z-index: 1; border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 2rem; text-align: center; color: rgba(255, 255, 255, 0.5); margin-top: 4rem; }
+        @media (max-width: 768px) { .skills-grid { grid-template-columns: 1fr; } .stats-bar { flex-wrap: wrap; gap: 1rem; } .nav-links { display: none; } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a1a; }
+        ::-webkit-scrollbar-thumb { background: #3a3a8a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5a5aaa; }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">PM</div>
+                <span class="logo-text">Skill Galaxy</span>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html#modules">模块</a>
+                <a href="../index.html#flow">流程</a>
+                <a href="https://github.com/LuckyOneTwoThree/pm-skill" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+    <section class="hero">
+        <div class="hero-icon">📋</div>
+        <h1>项目管理与执行</h1>
+        <p>贯穿全程的项目管理，包括项目规划、敏捷执行、风险控制、干系人管理</p>
+        <div class="stats-bar">
+            <div class="stat-item"><div class="stat-value">3</div><div class="stat-label">编排器</div></div>
+            <div class="stat-item"><div class="stat-value">9</div><div class="stat-label">Pipeline</div></div>
+            <div class="stat-item"><div class="stat-value">0</div><div class="stat-label">导航</div></div>
+            <div class="stat-item"><div class="stat-value">12</div><div class="stat-label">总计</div></div>
+        </div>
+    </section>
+    <div class="content">
+        <a href="../index.html#modules" class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回模块列表
+        </a>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>编排器 (Orchestrators)</h2><div class="skills-grid">
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">project-planning-orchestrator</h3>
+              <p class="skill-desc">项目规划指挥官。当需要启动新项目或进行项目规划时使用，包括项目宪章生成、资源需求与分配计划、Kickoff会议准备与行动项提取。关键词：项目规划、项目宪章、资源规划、Kickoff、项目启动。</p>
+              <span class="skill-submodule">其他</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">agile-orchestrator</h3>
+              <p class="skill-desc">敏捷执行指挥官。当需要管理Sprint周期或追踪敏捷执行时使用，包括Sprint规划与容量分配、每日同步与障碍追踪、Sprint评审与交付检查。关键词：敏捷执行、Sprint规划、每日站会、Sprint评审、敏捷管理。</p>
+              <span class="skill-submodule">敏捷执行</span>
+            </div>
+  
+
+            <div class="skill-card orchestrator">
+              <div class="skill-header">
+                <span class="skill-type">编排器</span>
+                <span class="skill-version">v2.0</span>
+              </div>
+              <h3 class="skill-name">risk-orchestrator</h3>
+              <p class="skill-desc">风险管理指挥官。当需要识别项目风险或处理风险升级时使用，包括风险识别与登记册维护、风险指标持续监控与预警、风险升级流程自动触发。关键词：风险管理、风险识别、风险监控、风险升级、风险登记册。</p>
+              <span class="skill-submodule">风险管理</span>
+            </div>
+  </div></div>
+        <div class="section"><h2 class="section-title"><span class="icon"></span>Pipeline Skills</h2><div class="skills-grid">
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">planning-project-charter</h3>
+              <p class="skill-desc">Pipeline 1 - 项目宪章自动生成。将产品背景、战略目标、资源约束转化为正式的项目宪章文档，包含背景、目标与范围、成功标准、利益相关方、初步风险评估、资源需求和时间线。关键词：项目宪章、项目章程、项目目标、项目范围、成功标准。</p>
+              <span class="skill-submodule">项目规划</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">planning-resource</h3>
+              <p class="skill-desc">Pipeline 2 - 资源需求自动规划。基于项目范围、技术方案和团队能力数据，自动完成工作量估算、资源类型识别、团队能力匹配、资源冲突检测，输出完整的资源配置方案。关键词：资源规划、资源分配、人力规划、资源需求、容量规划。</p>
+              <span class="skill-submodule">项目规划</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">planning-kickoff</h3>
+              <p class="skill-desc">Pipeline 3 - Kickoff会议自动化。包含会前AI准备（议程生成、背景材料整理、问题清单预准备）、会中人类主持、会后AI处理（纪要生成、行动项提取、跟进提醒设置）。关键词：Kickoff、项目启动、启动会议、行动项、项目启动会。</p>
+              <span class="skill-submodule">项目规划</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">agile-sprint-planning</h3>
+              <p class="skill-desc">Pipeline 4 - Sprint Planning自动化。将Product Backlog转化为Sprint Backlog，包含Sprint Goal建议、Story自动选取、工作量估算、容量匹配验证，输出完整的Sprint计划。关键词：Sprint规划、Sprint计划、迭代规划、Story选取、容量匹配。</p>
+              <span class="skill-submodule">敏捷执行</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">agile-daily-sync</h3>
+              <p class="skill-desc">Pipeline 5 - Daily Sync自动化。包含会前AI准备（进展汇总、障碍识别、每日工作项建议）、会中人类同步、会后AI处理（记录、行动项、风险标记），输出每日同步报告。关键词：每日站会、Daily Sync、进展同步、障碍追踪、敏捷日报。</p>
+              <span class="skill-submodule">敏捷执行</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">agile-review</h3>
+              <p class="skill-desc">Pipeline 6 - Sprint Review与Retro自动化。包含Sprint Review（产出清单整理、Demo准备清单、反馈收集分类）和Sprint Retro（数据收集、问题识别、改进建议生成）。关键词：Sprint Review、Sprint Retro、迭代评审、迭代回顾、敏捷复盘。</p>
+              <span class="skill-submodule">敏捷执行</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">risk-identification</h3>
+              <p class="skill-desc">Pipeline 7 - 风险自动识别与评估。持续扫描项目数据、外部数据和历史风险库，自动完成风险识别、评估、优先级排序、策略建议，输出完整的风险登记册。关键词：风险识别、风险评估、风险登记册、风险扫描、风险优先级。</p>
+              <span class="skill-submodule">风险管理</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">risk-monitoring</h3>
+              <p class="skill-desc">Pipeline 8 - 风险监控与预警自动化。持续追踪风险指标、更新风险状态、识别新风险、触发风险预警、追踪应对效果，输出完整的风险监控报告。关键词：风险监控、风险预警、风险追踪、风险状态、风险指标。</p>
+              <span class="skill-submodule">风险管理</span>
+            </div>
+  
+
+            <div class="skill-card pipeline">
+              <div class="skill-header">
+                <span class="skill-type">Pipeline</span>
+                <span class="skill-version">v1.0</span>
+              </div>
+              <h3 class="skill-name">risk-escalation</h3>
+              <p class="skill-desc">Pipeline 9 - 风险升级与问题升级自动化。自动判断升级必要性、确定升级路径、发送升级通知、追踪升级状态，输出完整的升级记录和升级路径模板。关键词：风险升级、问题升级、升级流程、升级通知、应急升级。</p>
+              <span class="skill-submodule">风险管理</span>
+            </div>
+  </div></div>
+    </div>
+    <footer class="footer"><p>Made with ❤️ by lucky | 126 个 AI Agent Skills</p></footer>
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [], mouseX = 0, mouseY = 0;
+        const colors = ['#00d4ff', '#b829dd', '#ff006e', '#00f5ff', '#ffffff'];
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; initStars(); }
+        function initStars() { stars = []; const count = Math.floor((width * height) / 4000); for (let i = 0; i < count; i++) { stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2, size: Math.random() * 2 + 0.5, opacity: Math.random(), speed: Math.random() * 0.5 + 0.1, color: colors[Math.floor(Math.random() * colors.length)] }); } }
+        function animate() { ctx.fillStyle = 'rgba(10, 10, 26, 0.1)'; ctx.fillRect(0, 0, width, height); stars.forEach(star => { const parallaxX = (mouseX - width / 2) * 0.02 * star.z; const parallaxY = (mouseY - height / 2) * 0.02 * star.z; const x = star.x + parallaxX; const y = star.y + parallaxY; star.opacity += (Math.random() - 0.5) * 0.02; star.opacity = Math.max(0.1, Math.min(1, star.opacity)); ctx.beginPath(); ctx.arc(x, y, star.size, 0, Math.PI * 2); ctx.fillStyle = star.color; ctx.globalAlpha = star.opacity; ctx.fill(); ctx.globalAlpha = 1; star.y += star.speed; if (star.y > height) { star.y = 0; star.x = Math.random() * width; } }); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        resize(); animate();
+    </script>
+</body>
+</html>

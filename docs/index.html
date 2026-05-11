@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM Skill Galaxy - 产品方法论 AI Agent Skills</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Canvas Background */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00d4ff, #b829dd);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #00d4ff;
+        }
+
+        .lang-switch {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-switch:hover {
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+        }
+
+        .hero-content {
+            max-width: 900px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, #00d4ff 0%, #b829dd 50%, #ff006e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00d4ff, #b829dd);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #b829dd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.5rem;
+        }
+
+        /* Modules Section */
+        .modules {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        .module-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.7s;
+        }
+
+        .module-card:hover::before {
+            left: 100%;
+        }
+
+        .module-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-8px) rotateX(2deg);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .module-card .glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--glow-color, rgba(0, 212, 255, 0.15)) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .module-card:hover .glow {
+            opacity: 1;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .module-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            position: relative;
+            transition: transform 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .module-card:hover .module-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .module-desc {
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .module-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            z-index: 1;
+        }
+
+        .module-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .module-stat .number {
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+
+        .module-arrow {
+            margin-left: auto;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .module-arrow svg {
+            width: 16px;
+            height: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .module-card:hover .module-arrow {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(4px);
+        }
+
+        .module-card:hover .module-arrow svg {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .module-skills {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .skill-tag {
+            padding: 0.35rem 0.9rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s;
+        }
+
+        .skill-tag:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Flow Section */
+        .flow {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem;
+        }
+
+        .flow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .flow-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .flow-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(0, 212, 255, 0.3) 10%, 
+                rgba(184, 41, 221, 0.3) 50%, 
+                rgba(255, 0, 110, 0.3) 90%, 
+                transparent 100%);
+            transform: translateX(-50%);
+        }
+
+        .flow-timeline::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: var(--progress, 0%);
+            background: linear-gradient(180deg, #00d4ff, #b829dd, #ff006e);
+            transform: translateX(-50%);
+            transition: height 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .flow-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .flow-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .flow-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .flow-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .flow-item-content {
+            width: 45%;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .flow-item-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.7s;
+        }
+
+        .flow-item-content:hover::before {
+            left: 100%;
+        }
+
+        .flow-item-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .flow-item:nth-child(odd) .flow-item-content {
+            margin-right: auto;
+            text-align: right;
+        }
+
+        .flow-item:nth-child(even) .flow-item-content {
+            margin-left: auto;
+            text-align: left;
+        }
+
+        .flow-item-number {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #b829dd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            border: 3px solid #0a0a1a;
+        }
+
+        .flow-item-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .flow-item-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.5;
+        }
+
+        .flow-item-skills {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-item:nth-child(odd) .flow-item-skills {
+            justify-content: flex-end;
+        }
+
+        .flow-item:nth-child(even) .flow-item-skills {
+            justify-content: flex-start;
+        }
+
+        .flow-skill-tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+        .stagger-6 { transition-delay: 0.6s; }
+        .stagger-7 { transition-delay: 0.7s; }
+        .stagger-8 { transition-delay: 0.8s; }
+        .stagger-9 { transition-delay: 0.9s; }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .flow-timeline::before,
+            .flow-timeline::after {
+                left: 20px;
+            }
+
+            .flow-item {
+                flex-direction: row !important;
+                padding-left: 60px;
+            }
+
+            .flow-item-number {
+                left: 20px !important;
+                transform: translateX(-50%) !important;
+            }
+
+            .flow-item-content {
+                width: 100% !important;
+                text-align: left !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .flow-item-skills {
+                justify-content: flex-start !important;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a8a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a5aaa;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">PM</div>
+                <span class="logo-text">Skill Galaxy</span>
+            </a>
+            <div class="nav-links">
+                <a href="#modules">模块</a>
+                <a href="#flow">流程</a>
+                <a href="https://github.com/LuckyOneTwoThree/pm-skill" target="_blank">GitHub</a>
+                <button class="lang-switch" onclick="toggleLanguage()">EN</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">
+                <span class="badge-dot"></span>
+                <span>126 AI Agent Skills · 9 大模块</span>
+            </div>
+            <h1>
+                产品方法论<br>
+                <span class="gradient">AI Agent Skills 星系</span>
+            </h1>
+            <p>将完整的产品方法论闭环提取为 126 个 AI Agent Skill，覆盖产品从探索到交付的全生命周期</p>
+            <div class="hero-buttons">
+                <a href="#modules" class="btn-primary">探索星系</a>
+                <a href="https://github.com/LuckyOneTwoThree/pm-skill" target="_blank" class="btn-secondary">查看源码</a>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">126</div>
+                    <div class="stat-label">Skills</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">模块</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">30</div>
+                    <div class="stat-label">编排器</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">95</div>
+                    <div class="stat-label">Pipeline</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="modules" id="modules">
+        <div class="section-header reveal">
+            <h2>9 大模块星系</h2>
+            <p>覆盖产品从探索到交付的完整生命周期</p>
+        </div>
+
+        <div class="modules-grid">
+            <a href="modules/discovery.html" class="module-card reveal stagger-1" style="--glow-color: rgba(0, 212, 255, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1)); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3);">🔍</div>
+                    <div class="module-title">产品探索与发现</div>
+                </div>
+                <div class="module-desc">从0开始，探索用户需求、市场机会，通过用户研究、需求洞察全面理解问题空间</div>
+                <div class="module-skills">
+                    <span class="skill-tag">用户研究</span>
+                    <span class="skill-tag">需求洞察</span>
+                    <span class="skill-tag">JTBD</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">21</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/strategy.html" class="module-card reveal stagger-2" style="--glow-color: rgba(184, 41, 221, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(184, 41, 221, 0.2), rgba(184, 41, 221, 0.1)); color: #b829dd; border: 1px solid rgba(184, 41, 221, 0.3);">🎯</div>
+                    <div class="module-title">产品商业与战略</div>
+                </div>
+                <div class="module-desc">确定商业模式、定位和战略方向，包括商业画布、价值主张、定价策略等关键决策</div>
+                <div class="module-skills">
+                    <span class="skill-tag">商业画布</span>
+                    <span class="skill-tag">竞品分析</span>
+                    <span class="skill-tag">定价策略</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">20</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/design.html" class="module-card reveal stagger-3" style="--glow-color: rgba(255, 0, 110, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(255, 0, 110, 0.1)); color: #ff006e; border: 1px solid rgba(255, 0, 110, 0.3);">✨</div>
+                    <div class="module-title">产品构思与设计</div>
+                </div>
+                <div class="module-desc">设计方案、验证假设、构建原型、生成PRD，覆盖需求理解、创意发散、方案设计、PRD生成全流程</div>
+                <div class="module-skills">
+                    <span class="skill-tag">方案设计</span>
+                    <span class="skill-tag">假设验证</span>
+                    <span class="skill-tag">原型构建</span>
+                    <span class="skill-tag">PRD生成</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">19</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/metrics-design.html" class="module-card reveal stagger-5" style="--glow-color: rgba(255, 215, 0, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1)); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3);">📊</div>
+                    <div class="module-title">产品度量设计</div>
+                </div>
+                <div class="module-desc">开发前设计指标体系和埋点方案，确保产品上线后能够有效衡量用户行为和产品表现</div>
+                <div class="module-skills">
+                    <span class="skill-tag">指标体系</span>
+                    <span class="skill-tag">埋点设计</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">4</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/development.html" class="module-card reveal stagger-6" style="--glow-color: rgba(0, 245, 255, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(0, 245, 255, 0.1)); color: #00f5ff; border: 1px solid rgba(0, 245, 255, 0.3);">🚀</div>
+                    <div class="module-title">产品开发与上线</div>
+                </div>
+                <div class="module-desc">开发交付、质量保证、发布上线，覆盖任务拆解、开发协同、质量检查全流程</div>
+                <div class="module-skills">
+                    <span class="skill-tag">开发管理</span>
+                    <span class="skill-tag">质量保证</span>
+                    <span class="skill-tag">发布上线</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">12</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/metrics-ops.html" class="module-card reveal stagger-7" style="--glow-color: rgba(255, 107, 107, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.1)); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3);">📈</div>
+                    <div class="module-title">产品度量运营</div>
+                </div>
+                <div class="module-desc">上线后数据分析和实验验证，通过漏斗分析、留存分析、异常检测等手段持续优化</div>
+                <div class="module-skills">
+                    <span class="skill-tag">数据分析</span>
+                    <span class="skill-tag">实验验证</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">11</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/growth.html" class="module-card reveal stagger-8" style="--glow-color: rgba(78, 205, 196, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.1)); color: #4ecdc4; border: 1px solid rgba(78, 205, 196, 0.3);">📣</div>
+                    <div class="module-title">产品增长与运营</div>
+                </div>
+                <div class="module-desc">获取用户、提升留存、商业化，覆盖获客渠道、激活引导、留存策略全链路</div>
+                <div class="module-skills">
+                    <span class="skill-tag">用户获取</span>
+                    <span class="skill-tag">留存提升</span>
+                    <span class="skill-tag">商业化</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">14</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/monitoring.html" class="module-card reveal stagger-9" style="--glow-color: rgba(168, 230, 207, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(168, 230, 207, 0.2), rgba(168, 230, 207, 0.1)); color: #a8e6cf; border: 1px solid rgba(168, 230, 207, 0.3);">🔧</div>
+                    <div class="module-title">产品监控与迭代</div>
+                </div>
+                <div class="module-desc">监控预警、问题诊断、迭代优化，建立完整的产品健康度监控体系和持续迭代机制</div>
+                <div class="module-skills">
+                    <span class="skill-tag">监控预警</span>
+                    <span class="skill-tag">问题诊断</span>
+                    <span class="skill-tag">迭代优化</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">12</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <a href="modules/project.html" class="module-card reveal stagger-9" style="--glow-color: rgba(255, 217, 61, 0.15);">
+                <div class="glow"></div>
+                <div class="module-header">
+                    <div class="module-icon" style="background: linear-gradient(135deg, rgba(255, 217, 61, 0.2), rgba(255, 217, 61, 0.1)); color: #ffd93d; border: 1px solid rgba(255, 217, 61, 0.3);">📋</div>
+                    <div class="module-title">项目管理与执行</div>
+                </div>
+                <div class="module-desc">贯穿全程的项目管理，包括项目规划、敏捷执行、风险控制、干系人管理</div>
+                <div class="module-skills">
+                    <span class="skill-tag">项目规划</span>
+                    <span class="skill-tag">敏捷管理</span>
+                    <span class="skill-tag">风险控制</span>
+                </div>
+                <div class="module-meta">
+                    <div class="module-stat">
+                        <span class="number">12</span>
+                        <span>Skills</span>
+                    </div>
+                    <div class="module-arrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section class="flow" id="flow">
+        <div class="section-header reveal">
+            <h2>产品全流程</h2>
+            <p>从探索到交付的标准化流程</p>
+        </div>
+        <div class="flow-container">
+            <div class="flow-timeline" id="flowTimeline">
+                <div class="flow-item">
+                    <div class="flow-item-number">1</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">🔍 探索与发现</div>
+                        <div class="flow-item-desc">从0开始，通过用户研究、需求洞察全面理解问题空间，发现市场机会</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">用户研究</span>
+                            <span class="flow-skill-tag">需求洞察</span>
+                            <span class="flow-skill-tag">JTBD</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">2</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">🎯 商业与战略</div>
+                        <div class="flow-item-desc">确定商业模式、定位和战略方向，制定商业画布、价值主张、定价策略</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">商业画布</span>
+                            <span class="flow-skill-tag">竞品分析</span>
+                            <span class="flow-skill-tag">定价策略</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">3</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">✨ 构思与设计</div>
+                        <div class="flow-item-desc">设计方案、验证假设、构建原型、生成PRD，覆盖需求理解、创意发散、方案设计、PRD生成</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">方案设计</span>
+                            <span class="flow-skill-tag">假设验证</span>
+                            <span class="flow-skill-tag">原型构建</span>
+                            <span class="flow-skill-tag">PRD生成</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">4</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">📊 度量设计</div>
+                        <div class="flow-item-desc">开发前设计指标体系和埋点方案，确保能够有效衡量用户行为和产品表现</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">指标体系</span>
+                            <span class="flow-skill-tag">埋点设计</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">5</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">🚀 开发与上线</div>
+                        <div class="flow-item-desc">开发交付、质量保证、发布上线，覆盖任务拆解、开发协同、质量检查</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">开发管理</span>
+                            <span class="flow-skill-tag">质量保证</span>
+                            <span class="flow-skill-tag">发布上线</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">6</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">📈 度量运营</div>
+                        <div class="flow-item-desc">上线后数据分析和实验验证，通过漏斗分析、留存分析、异常检测持续优化</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">数据分析</span>
+                            <span class="flow-skill-tag">实验验证</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">7</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">📣 增长与运营</div>
+                        <div class="flow-item-desc">获取用户、提升留存、商业化，覆盖获客渠道、激活引导、留存策略</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">用户获取</span>
+                            <span class="flow-skill-tag">留存提升</span>
+                            <span class="flow-skill-tag">商业化</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">8</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">🔧 监控与迭代</div>
+                        <div class="flow-item-desc">监控预警、问题诊断、迭代优化，建立完整的产品健康度监控体系</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">监控预警</span>
+                            <span class="flow-skill-tag">问题诊断</span>
+                            <span class="flow-skill-tag">迭代优化</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-item">
+                    <div class="flow-item-number">9</div>
+                    <div class="flow-item-content">
+                        <div class="flow-item-title">📋 项目管理</div>
+                        <div class="flow-item-desc">贯穿全程的项目管理，包括项目规划、敏捷执行、风险控制、干系人管理</div>
+                        <div class="flow-item-skills">
+                            <span class="flow-skill-tag">项目规划</span>
+                            <span class="flow-skill-tag">敏捷管理</span>
+                            <span class="flow-skill-tag">风险控制</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>Made with ❤️ by lucky | 126 个 AI Agent Skills</p>
+    </footer>
+
+    <script>
+        // Starfield Animation
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let stars = [];
+        let mouseX = 0, mouseY = 0;
+
+        const colors = ['#00d4ff', '#b829dd', '#ff006e', '#00f5ff', '#ffffff'];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((width * height) / 4000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    z: Math.random() * 2,
+                    size: Math.random() * 2 + 0.5,
+                    opacity: Math.random(),
+                    speed: Math.random() * 0.5 + 0.1,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            stars.forEach(star => {
+                const parallaxX = (mouseX - width / 2) * 0.02 * star.z;
+                const parallaxY = (mouseY - height / 2) * 0.02 * star.z;
+                const x = star.x + parallaxX;
+                const y = star.y + parallaxY;
+
+                star.opacity += (Math.random() - 0.5) * 0.02;
+                star.opacity = Math.max(0.1, Math.min(1, star.opacity));
+
+                ctx.beginPath();
+                ctx.arc(x, y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = star.color;
+                ctx.globalAlpha = star.opacity;
+                ctx.fill();
+
+                if (star.size > 1.5) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, star.size * 3, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, star.size * 3);
+                    gradient.addColorStop(0, star.color + '40');
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.globalAlpha = star.opacity * 0.3;
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 1;
+
+                star.y += star.speed;
+                if (star.y > height) {
+                    star.y = 0;
+                    star.x = Math.random() * width;
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        resize();
+        animate();
+
+        // Scroll Reveal Animation
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .flow-item');
+        const flowTimeline = document.getElementById('flowTimeline');
+
+        function checkReveal() {
+            const triggerBottom = window.innerHeight * 0.85;
+            const triggerTop = window.innerHeight * 0.15;
+
+            revealElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementBottom = element.getBoundingClientRect().bottom;
+
+                if (elementTop < triggerBottom && elementBottom > triggerTop) {
+                    element.classList.add('visible');
+                }
+            });
+
+            // Update timeline progress
+            if (flowTimeline) {
+                const timelineRect = flowTimeline.getBoundingClientRect();
+                const timelineTop = timelineRect.top;
+                const timelineHeight = timelineRect.height;
+                const windowHeight = window.innerHeight;
+
+                if (timelineTop < windowHeight && timelineTop + timelineHeight > 0) {
+                    const progress = Math.min(100, Math.max(0, 
+                        ((windowHeight - timelineTop) / (windowHeight + timelineHeight)) * 100
+                    ));
+                    flowTimeline.style.setProperty('--progress', progress + '%');
+                }
+            }
+        }
+
+        window.addEventListener('scroll', checkReveal);
+        window.addEventListener('resize', checkReveal);
+        
+        // Initial check
+        setTimeout(checkReveal, 100);
+
+        // Language toggle
+        function toggleLanguage() {
+            alert('完整版网站支持中英文切换！请访问 GitHub 仓库查看完整功能。');
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+
+# Node.js
+node_modules/
