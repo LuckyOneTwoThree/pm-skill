@@ -5,7 +5,7 @@ metadata:
   module: "产品商业与战略"
   sub-module: "产品定位与差异化"
   type: "orchestrator"
-  version: "3.0"
+  version: "5.0"
 ---
 
 # 产品定位与差异化指挥官
@@ -14,82 +14,127 @@ metadata:
 
 定位的本质是选择不为谁服务。
 
-## 执行步骤
+1. **取舍显式化**——定位的每个选择必须同时声明"选择做什么"和"选择不做什么"，取舍不可隐含
+2. **竞争锚点驱动**——差异化评估必须以竞品为参照锚点，避免脱离竞争语境的自我定位
+3. **排他即承诺**——排他决策一旦做出即视为产品承诺，必须纳入后续需求过滤的硬约束
 
-1. **选项生成优于单一推荐**：每个关键决策点生成2-3个可比较选项，由人类选择而非AI替选
-2. **数据驱动填充人类驱动选择**：AI负责数据整合与逻辑推导，人类负责方向判断与最终决策
-3. **假设显式化**：所有推断内容必须标注为假设，包含风险等级和验证方法
-4. **财务建模自动化**：单位经济、敏感性分析等财务计算由AI自动完成，人类只审核结论
+## 编排协议
 
-## 子Skill执行协议
+你是编排器，职责是**按阶段调度子Skill执行**，而非代理执行子Skill逻辑。严格遵循以下协议：
 
-你是编排器，你的职责是按阶段调度子Skill执行。执行每个子Skill时，你必须严格遵循以下步骤：
+### 调用规则
 
-1. **读取子Skill定义**：读取 `对应子Skill的定义文件（阶段执行计划中"读取定义"列指定的路径）` 获取该子Skill的完整执行指令
-2. **按子Skill指令执行**：严格遵循子Skill SKILL.md中的执行步骤、输入规范、输出规范和质量检查
-3. **输出到指定路径**：将结果写入子Skill规定的输出路径
-4. **验证输出完成**：确认输出文件已生成且符合校验规则后，再进入下一阶段
-5. **传递数据给下游**：将当前子Skill的输出文件路径作为下一阶段子Skill的输入来源
+1. **显式调用**：使用 `Skill` 工具调用子Skill，传递输入数据，接收输出结果
+2. **不代理执行**：不读取子Skill的SKILL.md来替代执行，不自行推断子Skill的内部逻辑
+3. **契约驱动**：只关注子Skill的输入契约、输出契约和验证条件，不关注内部实现
+4. **状态传递**：将当前阶段的输出作为下一阶段的输入，通过文件路径传递数据
+5. **验证后推进**：每个阶段输出验证通过后，才推进到下一阶段
+6. **阶段总结**：所有子Skill执行完成后，生成阶段总结文档，写入 `output/phase-reports/pm-strategy/positioning-orchestrator.md`
 
-**重要**：不要跳过任何子Skill，不要用自身逻辑替代子Skill的执行指令。每个子Skill必须通过读取其SKILL.md来执行。
+### 上下文管理
+
+- 每个子Skill调用完成后，只保留**输出文件路径**和**关键结论摘要**
+- 详细输出写入 `output/pm-strategy/{skill-name}/` 目录
+- 若上下文接近上限，优先保留当前阶段内容和待执行阶段的子Skill名称
+
+### 阶段总结
+
+所有子Skill执行完成后，编排器必须生成一份阶段总结文档，写入 `output/phase-reports/pm-strategy/positioning-orchestrator.md`，包含以下结构：
+
+1. **执行概览**：编排器名称与版本、执行时间、子Skill执行状态（成功/失败/降级）
+2. **关键发现**：每个子Skill的核心输出摘要（1-3条）、跨子Skill的交叉洞察
+3. **决策记录**：人类决策点及决策结果、AI自动决策及依据
+4. **产出清单**：所有输出文件路径及内容摘要、产出质量评估（是否通过验证）
+5. **风险与待办**：未通过验证的项、降级执行的项、建议后续跟进的事项
+6. **下游衔接**：本编排器产出可被哪些下游编排器消费、推荐的下一步编排器
+
+## Pipeline 定义
+
+```yaml
+pipeline: positioning-orchestrator
+version: 5.0
+
+stages:
+  - id: phase-1
+    name: "定位陈述"
+    skills: [positioning-statement]
+    gate:
+      condition: "定位陈述质量检查5项全部通过"
+      fail_action: "自动重试≤3次，仍不通过升级人类"
+
+  - id: phase-2
+    name: "价值曲线"
+    depends_on: [phase-1]
+    skills: [positioning-value-curve]
+    gate:
+      condition: "差异化强度≥0.5"
+      fail_action: "<0.5警告，蓝海动作需人类审核战略意图"
+
+  - id: phase-3
+    name: "差异化评估"
+    depends_on: [phase-2]
+    skills: [positioning-differentiation]
+    gate:
+      condition: "5个维度都已评估"
+      fail_action: "各维度需人类校准"
+
+  - id: phase-4
+    name: "排他决策"
+    depends_on: [phase-1, phase-3]
+    skills: [positioning-exclusion]
+    gate:
+      condition: "排他陈述已生成"
+      fail_action: "排他决策必须由人类产品负责人做出"
+```
 
 ## 阶段执行计划
 
-### 阶段1：positioning-statement
+### 阶段1：定位陈述
 
-| 项目 | 内容 |
-|------|------|
-| 子Skill名称 | positioning-statement |
-| 读取定义路径 | `.trae/skills/positioning-statement/SKILL.md` |
-| 输入 | 探索阶段输出（来自 user-research-user-modeling / opportunity-brief）；BMC（来自 output/pm-strategy/business-model-canvas/bmc.json）；竞品分析数据（来自 market-competitor-intel → competitor-intel.json） |
-| 输出 | `output/pm-strategy/positioning-statement/positioning-statements.json` |
-| 验证 | 定位陈述质量检查5项全部通过 |
-| 执行模式 | 🤖→👤 AI建议，人类审批 |
-| ⏸ 阶段卡口 | 定位陈述质量检查5项全部通过 → 未通过：自动重试≤3次，仍不通过升级人类 |
+- **调用Skill**: `positioning-statement`
+- **输入参数**:
+  - `exploration_output`: 探索阶段输出（来自 user-research-user-modeling / opportunity-brief）
+  - `bmc`: BMC（来自 output/pm-strategy/business-model-canvas/bmc.json）
+  - `competitor_intel`: 竞品分析数据（来自 market-competitor-intel → competitor-intel.json）
+- **输出**: `output/pm-strategy/positioning-statement/positioning-statements.json`
+- **验证**: 定位陈述质量检查5项全部通过
+- **执行模式**: 🤖→👤 AI建议，人类审批
+- **卡口**: 定位陈述质量检查5项全部通过 → 未通过：自动重试≤3次，仍不通过升级人类
 
-### 阶段2：positioning-value-curve
+### 阶段2：价值曲线
 
-| 项目 | 内容 |
-|------|------|
-| 子Skill名称 | positioning-value-curve |
-| 读取定义路径 | `.trae/skills/positioning-value-curve/SKILL.md` |
-| 输入 | 竞品分析数据（来自 market-competitor-intel → competitor-intel.json）；自身产品能力评估（用户提供）；用户研究数据（来自 user-research-user-modeling → persona.json） |
-| 输出 | `output/pm-strategy/positioning-value-curve/value-curve.json` |
-| 验证 | 差异化强度≥0.5 |
-| 执行模式 | 🤖→👤 AI建议，人类审批 |
-| ⏸ 阶段卡口 | 差异化强度≥0.5 → 未通过：<0.5警告，蓝海动作需人类审核战略意图 |
+- **调用Skill**: `positioning-value-curve`
+- **输入参数**:
+  - `competitor_intel`: 竞品分析数据（来自 market-competitor-intel → competitor-intel.json）
+  - `product_capability`: 自身产品能力评估（用户提供）
+  - `user_research`: 用户研究数据（来自 user-research-user-modeling → persona.json）
+- **输出**: `output/pm-strategy/positioning-value-curve/value-curve.json`
+- **验证**: 差异化强度≥0.5
+- **执行模式**: 🤖→👤 AI建议，人类审批
+- **卡口**: 差异化强度≥0.5 → 未通过：<0.5警告，蓝海动作需人类审核战略意图
 
-### 阶段3：positioning-differentiation
+### 阶段3：差异化评估
 
-| 项目 | 内容 |
-|------|------|
-| 子Skill名称 | positioning-differentiation |
-| 读取定义路径 | `.trae/skills/positioning-differentiation/SKILL.md` |
-| 输入 | 价值曲线（来自阶段2 `output/pm-strategy/positioning-value-curve/value-curve.json`）；竞品分析（来自 market-competitor-intel → competitor-intel.json）；自身能力评估（可选，用户提供） |
-| 输出 | `output/pm-strategy/positioning-differentiation/differentiation-assessment.json` |
-| 验证 | 5个维度都已评估 |
-| 执行模式 | 🤖→👤 AI建议，人类审批 |
-| ⏸ 阶段卡口 | 5个维度都已评估 → 未通过：各维度需人类校准，综合推荐需人类最终判断 |
+- **调用Skill**: `positioning-differentiation`
+- **输入参数**:
+  - `value_curve`: 价值曲线（来自阶段2 `output/pm-strategy/positioning-value-curve/value-curve.json`）
+  - `competitor_intel`: 竞品分析（来自 market-competitor-intel → competitor-intel.json）
+  - `capability_assessment`: 自身能力评估（可选，用户提供）
+- **输出**: `output/pm-strategy/positioning-differentiation/differentiation-assessment.json`
+- **验证**: 5个维度都已评估
+- **执行模式**: 🤖→👤 AI建议，人类审批
+- **卡口**: 5个维度都已评估 → 未通过：各维度需人类校准，综合推荐需人类最终判断
 
-### 阶段4：positioning-exclusion
+### 阶段4：排他决策
 
-| 项目 | 内容 |
-|------|------|
-| 子Skill名称 | positioning-exclusion |
-| 读取定义路径 | `.trae/skills/positioning-exclusion/SKILL.md` |
-| 输入 | positioning-statement输出（来自阶段1 `output/pm-strategy/positioning-statement/positioning-statements.json`）；竞品分析（来自 market-competitor-intel → competitor-intel.json） |
-| 输出 | `output/pm-strategy/positioning-exclusion/exclusion-decision.json` |
-| 验证 | 排他陈述已生成 |
-| 执行模式 | 👤 人类执行，AI辅助 |
-| ⏸ 阶段卡口 | 排他陈述已生成 → 未通过：排他决策必须由人类产品负责人做出 |
-
-## 调度规则
-
-- 每次只执行当前阶段需要的子Skill，完成后再执行下一阶段，不要一次性执行所有子Skill
-- 执行子Skill前必须先读取其SKILL.md定义文件
-- 每个阶段完成后，将中间结果写入 `output/pm-strategy/{当前阶段子Skill名称}/` 文件，释放上下文空间
-- 若上下文接近上限，优先保留当前阶段内容，将已完成阶段的输出摘要为关键结论
-- 单个子Skill的输出应控制在2000字以内，超出部分写入文件
+- **调用Skill**: `positioning-exclusion`
+- **输入参数**:
+  - `positioning_statements`: positioning-statement输出（来自阶段1 `output/pm-strategy/positioning-statement/positioning-statements.json`）
+  - `competitor_intel`: 竞品分析（来自 market-competitor-intel → competitor-intel.json）
+- **输出**: `output/pm-strategy/positioning-exclusion/exclusion-decision.json`
+- **验证**: 排他陈述已生成
+- **执行模式**: 👤 人类执行，AI辅助
+- **卡口**: 排他陈述已生成 → 未通过：排他决策必须由人类产品负责人做出
 
 ## 阶段卡口
 
@@ -99,6 +144,15 @@ metadata:
 | 价值曲线完成 | 差异化强度≥0.5 | <0.5警告，蓝海动作需人类审核战略意图 |
 | 差异化评估完成 | 5个维度都已评估 | 各维度需人类校准，综合推荐需人类最终判断 |
 | 排他决策完成 | 排他陈述已生成 | 排他决策必须由人类产品负责人做出 |
+
+## 异常处理
+
+| 异常类型 | 处理策略 |
+|----------|----------|
+| 阶段1某子Skill失败 | 暂停编排，输出失败诊断信息，请求人类介入修复后重试该阶段 |
+| 上游数据缺失 | 标注缺失数据项，使用合理假设填充（标注置信度≤0.3），继续执行并在输出中高亮标注 |
+| 关键决策点未获人类确认 | 暂停编排，输出待确认事项清单，等待人类确认后继续 |
+| 所有上游数据全部缺失 | 终止编排，输出数据依赖图和缺失清单，要求人类提供最小必要输入后重新启动 |
 
 ## 人类决策点
 
@@ -112,3 +166,5 @@ metadata:
 - v1.0: 初始版本
 - v2.0: description触发词优化
 - v3.0: 优化为子Skill执行协议+阶段执行计划模式，增加子Skill定义读取路径和输入输出规范
+- v4.0: 核心原则替换为编排理念原则，新增异常处理表
+- v5.0: 编排协议优化——将"读取子Skill定义并代理执行"改为"使用Skill工具显式调用子Skill"；新增Pipeline定义（YAML声明式执行图）；阶段执行计划改为调用指令格式；调度规则合并入编排协议
