@@ -1,15 +1,20 @@
 ---
 name: metrics-system
-description: 当需要构建产品指标体系时使用。指标体系自动构建，包含北极星指标校验与推荐、L1/L2指标拆解、行动指标识别、虚荣指标检测。关键词：指标体系、AARRR模型、北极星指标、L1/L2指标、OSM模型、度量体系。
+description: 当需要构建产品指标体系时使用。指标体系自动构建，包含北极星指标校验与推荐、L1/L2指标拆解、行动指标识别、虚荣指标检测。关键词：指标体系、AARRR模型、北极星指标、L1/L2指标、OSM模型、度量体系、定指标、核心数据。
 metadata:
   module: "产品度量设计"
   sub-module: "指标体系"
   type: "pipeline"
-  version: "2.0"
+  version: "2.1"
+  domain_tags: ["互联网", "SaaS", "通用"]
+  trigger_examples:
+    - "帮我梳理一下产品的核心指标"
+    - "我们要定北极星指标"
+    - "搭建一套指标体系"
   interaction_mode: "ai_suggest_human_approve"
 ---
 
-# Pipeline 1: 指标体系自动构建
+# 指标体系自动构建
 
 ## 核心原则
 
@@ -660,10 +665,10 @@ THEN 标记为「不可操作」虚荣指标
 
 | 指标变更类型 | 通知范围 | 通知方式 |
 |-------------|----------|----------|
-| 北极星指标变更 | tracking-plan、metrics-dashboard、monitoring-system | 标记核心指标变更，触发全链路更新 |
+| 北极星指标变更 | tracking-plan、metrics-dashboard、monitoring-pipeline | 标记核心指标变更，触发全链路更新 |
 | L1/L2指标增删 | tracking-plan、metrics-dashboard | 标记指标增删，触发埋点和看板更新 |
 | 行动指标变更 | tracking-plan | 标记行动指标变更，触发埋点更新 |
-| 指标定义修改 | tracking-plan、metrics-dashboard、monitoring-system | 标记定义变更，触发相关Skill重新评估 |
+| 指标定义修改 | tracking-plan、metrics-dashboard、monitoring-pipeline | 标记定义变更，触发相关Skill重新评估 |
 
 ---
 
@@ -707,119 +712,4 @@ THEN 标记为「不可操作」虚荣指标
 
 ---
 
-## 执行示例
-
-### 示例输入
-
-```json
-{
-  "product_context": {
-    "product_type": "ecommerce",
-    "north_star_metric": null,
-    "okr": {
-      "objective": "提升电商平台GMV",
-      "key_results": [
-        "季度GMV增长30%",
-        "新客转化率提升15%",
-        "老客复购率达到25%"
-      ]
-    },
-    "business_model": "平台型电商，C端消费者+B端商家"
-  },
-  "existing_metrics": [
-    {
-      "name": "日GMV",
-      "definition": "当日成交总额",
-      "calculation": "sum(order_amount)",
-      "layer": "north_star"
-    }
-  ]
-}
-```
-
-### 示例输出
-
-```json
-{
-  "metric_system": {
-    "north_star": {
-      "name": "月GMV",
-      "definition": "自然月内的成交总额",
-      "calculation": "sum(order_amount) where order_date in [month_start, month_end]",
-      "data_source": "订单系统",
-      "validation": {
-        "is_vanity_free": true,
-        "product_type_match": 0.92,
-        "issues": []
-      }
-    },
-    "l1_metrics": [
-      {
-        "layer": "Acquisition",
-        "name": "用户获取",
-        "weight": 0.20,
-        "calculation": "获取新买家数",
-        "data_source": "用户中心",
-        "l2_metrics": [
-          {
-            "name": "新客获取数",
-            "calculation": "count(distinct new_buyer_id)",
-            "data_source": "用户中心",
-            "type": "frequency",
-            "is_actionable": true
-          },
-          {
-            "name": "获客成本",
-            "calculation": "marketing_cost / new_buyer_count",
-            "data_source": "财务系统",
-            "type": "efficiency",
-            "is_actionable": true
-          },
-          {
-            "name": "渠道转化率",
-            "calculation": "渠道新客 / 渠道访客",
-            "data_source": "埋点系统",
-            "type": "conversion_rate",
-            "is_actionable": true
-          }
-        ]
-      }
-    ],
-    "actionable_metrics": [
-      {
-        "name": "新客注册转化率",
-        "linked_l2": "渠道转化率",
-        "linked_l1": "用户获取",
-        "optimization_approach": "优化注册流程，减少表单字段"
-      }
-    ],
-    "vanity_alerts": []
-  }
-}
-```
-
----
-
-## 性能指标
-
-### 处理时间
-
-- **Step 1（北极星校验）**：≤5秒
-- **Step 2（L1拆解）**：≤3秒
-- **Step 3（L2拆解）**：≤10秒
-- **Step 4（行动指标识别）**：≤5秒
-- **Step 5（虚荣指标检测）**：≤3秒
-
-**总处理时间**：≤30秒
-
-### 准确性目标
-
-- 北极星推荐准确率：≥85%
-- L2拆解完整率：≥90%
-- 虚荣指标检出率：≥95%
-
-### 覆盖率目标
-
-- L1维度覆盖率：100%（AARRR五维度）
-- L2指标覆盖率：≥3个/L1
-- 行动指标识别率：≥80%
+## 变更记录

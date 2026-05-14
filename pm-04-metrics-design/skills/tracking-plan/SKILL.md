@@ -1,15 +1,20 @@
 ---
 name: tracking-plan
-description: 当需要生成埋点方案时使用。埋点方案自动生成，包含从指标体系反推埋点需求、PRD功能埋点提取、埋点质量检查、PRD一致性校验。关键词：埋点方案、事件设计、属性设计、埋点规范、Tracking Plan、数据采集。
+description: 当需要生成埋点方案时使用。埋点方案自动生成，包含从指标体系反推埋点需求、PRD功能埋点提取、埋点质量检查、PRD一致性校验。关键词：埋点方案、事件设计、属性设计、埋点规范、Tracking Plan、数据采集、加埋点、打点。
 metadata:
   module: "产品度量设计"
   sub-module: "埋点方案"
   type: "pipeline"
-  version: "2.0"
+  version: "2.1"
+  domain_tags: ["互联网", "电商", "通用"]
+  trigger_examples:
+    - "这个功能需要加埋点"
+    - "帮我出一份打点方案"
+    - "整理一下需要采集哪些数据"
   interaction_mode: "ai_suggest_human_approve"
 ---
 
-# Pipeline 2: 埋点方案自动生成
+# 埋点方案自动生成
 
 ## 核心原则
 
@@ -906,150 +911,4 @@ IF PRD一致性不足:
 
 ---
 
-## 执行示例
-
-### 示例输入
-
-```json
-{
-  "prd_document": "# 电商App PRD\n\n## 核心功能\n1. 用户登录注册\n2. 商品浏览与搜索\n3. 购物车管理\n4. 订单支付\n5. 个人信息管理\n\n## 核心路径\n新用户注册 → 商品浏览 → 加入购物车 → 结算支付 → 订单完成",
-  "metric_system": {
-    "north_star": {
-      "name": "月GMV",
-      "calculation": "sum(order_amount)"
-    },
-    "l1_metrics": [
-      {
-        "layer": "Activation",
-        "name": "新用户激活",
-        "l2_metrics": [
-          {"name": "首次下单转化率"}
-        ]
-      }
-    ]
-  },
-  "existing_tracking": [
-    {
-      "event_name": "user_login",
-      "trigger": "登录成功"
-    }
-  ]
-}
-```
-
-### 示例输出
-
-```json
-{
-  "tracking_plan": [
-    {
-      "event_name": "register_success",
-      "display_name": "注册成功",
-      "trigger": {
-        "description": "用户完成注册流程",
-        "timing": "immediate",
-        "conditions": ["注册表单提交成功"]
-      },
-      "properties": [
-        {
-          "name": "register_channel",
-          "type": "string",
-          "required": true,
-          "description": "注册渠道",
-          "example": "phone|email|third_party"
-        },
-        {
-          "name": "register_source",
-          "type": "string",
-          "required": true,
-          "description": "来源页面",
-          "example": "splash|landing_page"
-        }
-      ],
-      "analysis_purpose": "分析注册转化率和渠道效果",
-      "linked_metric": "Activation",
-      "priority": "high",
-      "status": "pending"
-    },
-    {
-      "event_name": "product_view",
-      "display_name": "商品详情浏览",
-      "trigger": {
-        "description": "用户进入商品详情页",
-        "timing": "immediate",
-        "conditions": ["商品ID有效"]
-      },
-      "properties": [
-        {
-          "name": "product_id",
-          "type": "string",
-          "required": true,
-          "description": "商品ID"
-        },
-        {
-          "name": "product_name",
-          "type": "string",
-          "required": true,
-          "description": "商品名称"
-        },
-        {
-          "name": "category",
-          "type": "string",
-          "required": true,
-          "description": "商品类目"
-        },
-        {
-          "name": "price",
-          "type": "number",
-          "required": true,
-          "description": "商品价格"
-        }
-      ],
-      "analysis_purpose": "分析商品曝光和用户偏好",
-      "linked_metric": "月GMV",
-      "priority": "high",
-      "status": "pending"
-    }
-  ],
-  "quality_check": {
-    "naming_compliance": true,
-    "property_completeness": 0.95,
-    "core_path_coverage": 0.90,
-    "anomaly_coverage": true,
-    "redundancy_detected": [],
-    "prd_consistency": {
-      "forward_coverage": 0.92,
-      "backward_coverage": 0.88,
-      "consistency_score": 0.90,
-      "status": "pass"
-    }
-  }
-}
-```
-
----
-
-## 性能指标
-
-### 处理时间
-
-- **Step 1（指标反推）**：≤10秒
-- **Step 2（PRD提取）**：≤15秒
-- **Step 3（去重处理）**：≤10秒
-- **Step 4（质量检查）**：≤10秒
-- **Step 5（文档生成）**：≤5秒
-- **Step 6（一致性校验）**：≤10秒
-
-**总处理时间**：≤60秒
-
-### 准确性目标
-
-- 埋点需求识别准确率：≥90%
-- PRD功能覆盖率：≥90%
-- 命名规范通过率：≥95%
-
-### 覆盖率目标
-
-- 核心路径覆盖：≥90%
-- 异常状态覆盖：≥80%
-- PRD一致性：≥90%
+## 变更记录

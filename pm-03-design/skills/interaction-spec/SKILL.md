@@ -1,11 +1,16 @@
 ---
 name: interaction-spec
-description: 当需要将用户流程和原型设计转化为完整的交互设计规范时使用。交互设计规范文档自动生成，包含交互状态机、动画规范、手势操作、反馈机制、无障碍交互和异常状态处理。关键词：交互设计规范、交互规范、状态机、动画规范、手势操作、交互反馈、无障碍交互。
+description: 当需要将用户流程和原型设计转化为完整的交互设计规范时使用。交互设计规范文档自动生成，包含交互状态机、动画规范、手势操作、反馈机制、无障碍交互和异常状态处理。关键词：交互设计规范、交互规范、状态机、动画规范、手势操作、交互反馈、无障碍交互、交互文档、动效规范。
 metadata:
   module: "产品构思与设计"
   sub-module: "产品设计与原型"
   type: "pipeline"
-  version: "2.0"
+  version: "3.0"
+  domain_tags: ["互联网", "软件", "通用"]
+  trigger_examples:
+    - "交互规范怎么写"
+    - "帮我写交互设计文档"
+    - "动效和手势怎么定义"
   interaction_mode: "ai_suggest_human_approve"
 ---
 
@@ -23,12 +28,12 @@ metadata:
 
 ## 输入
 
-| 输入项 | 来源 | 必需 | 说明 |
-|--------|------|------|------|
-| 用户流程 | output/pm-design/design-userflow | ✅ | 用户流程图、状态转换、决策节点 |
-| 原型规格 | output/pm-design/design-prototype | ✅ | 原型设计、交互标注、组件规格 |
-| 设计交接文档 | output/pm-design/design-handoff-spec | ⬜ | 设计令牌、组件规格、响应式断点 |
-| 品牌规范 | 用户提供 | ⬜ | 品牌调性、动画风格偏好 |
+| 输入项 | 类型 | 必填 | 来源 | 说明 |
+|--------|------|------|------|------|
+| 用户流程 | markdown | 是 | design-userflow | 用户流程图、状态转换、决策节点 |
+| 原型规格 | markdown | 是 | design-prototype | 原型设计、交互标注、组件规格 |
+| 设计交接文档 | markdown | 否 | design-handoff-spec | 设计令牌、组件规格、响应式断点 |
+| 品牌规范 | text | 否 | 用户输入 | 品牌调性、动画风格偏好 |
 
 ### 降级策略
 
@@ -50,40 +55,40 @@ metadata:
 3. **状态优先级**：多状态叠加时的优先级规则（如 Disabled + Error）
 4. **状态持久性**：瞬时状态 vs 持续状态的保持规则
 
-### Step 2：动画与过渡规范
+### Step 2：动画与过渡意图
 
-定义产品中所有动画和过渡效果的标准：
+定义产品中动画和过渡效果的**意图**，具体实现参数由 UI Skill（ext-interaction-design + page-builder）基于 visual_direction 决定：
 
-1. **缓动函数**：
-   - 标准缓动：`cubic-bezier(0.4, 0.0, 0.2, 1)` — 通用过渡
-   - 减速缓动：`cubic-bezier(0.0, 0.0, 0.2, 1)` — 进入动画
-   - 加速缓动：`cubic-bezier(0.4, 0.0, 1, 1)` — 退出动画
-   - 急速缓动：`cubic-bezier(0.4, 0.0, 0.6, 1)` — 频繁切换
-2. **持续时间标准**：
-   - 微交互：100-150ms（按钮反馈、开关切换）
-   - 小型过渡：150-250ms（下拉展开、Toast出现）
-   - 大型过渡：250-400ms（页面切换、模态框）
-   - 复杂动画：400-600ms（数据可视化、3D变换）
+1. **过渡意图**（不定义具体缓动函数和时长）：
+   - 通用过渡：应感觉自然流畅
+   - 进入动画：应有减速感，元素从远处靠近
+   - 退出动画：应有加速感，元素向远处离开
+   - 频繁切换：应干脆利落，不拖泥带水
+2. **动画意图标准**（不定义具体毫秒数）：
+   - 微交互（按钮反馈、开关切换）：应即时可感知
+   - 小型过渡（下拉展开、Toast出现）：应快速完成
+   - 大型过渡（页面切换、模态框）：应有节奏感
+   - 复杂动画（数据可视化、3D变换）：应有叙事感
 3. **动画性能**：仅使用 transform 和 opacity，避免 layout 和 paint 触发
 4. **减弱动画**：`prefers-reduced-motion` 适配规则
 
-### Step 3：手势与操作规范
+### Step 3：手势与操作意图
 
-定义各平台的手势操作标准：
+定义各平台的手势操作**意图和约束**，具体阈值由 UI Skill 基于平台规范和 visual_direction 决定：
 
 1. **点击/按压**：
-   - 点击热区最小 44×44px（iOS）/ 48×48dp（Android）
-   - 长按阈值 500ms，触觉反馈
-   - 双击间隔阈值 300ms
+   - 触摸目标应满足平台无障碍标准（iOS/Android/Web 各有规范）
+   - 长按操作需有触觉或视觉反馈
+   - 双击操作需有合理的时间窗口
 2. **滑动/拖拽**：
-   - 滑动触发阈值 8px
-   - 滑动速度与惯性衰减
-   - 边缘滑动保留系统手势
+   - 滑动操作应有合理的触发灵敏度（避免误触）
+   - 滑动应有惯性和衰减效果
+   - 边缘滑动需保留系统手势
 3. **缩放/旋转**：
-   - 双指缩放范围 [0.5x, 3.0x]
-   - 旋转吸附角度 15°
+   - 缩放范围应有合理上下限
+   - 旋转操作应有吸附辅助
 4. **键盘操作**：
-   - Tab 顺序与焦点管理
+   - Tab 顺序与焦点管理规则
    - 快捷键映射表
    - Enter/Space 激活规则
 
@@ -146,22 +151,24 @@ metadata:
 ```markdown
 # 交互设计规范：{产品名称}
 
+**输出校验规则**：详见下方输出校验规则章节
+
 ## 1. 交互状态机
 - 状态枚举与定义
 - 状态转换表
 - 状态优先级规则
 - 状态持久性规则
 
-## 2. 动画与过渡规范
-- 缓动函数标准
-- 持续时间标准
+## 2. 动画与过渡意图
+- 过渡意图（自然流畅/减速感/加速感/干脆利落）
+- 动画时长意图（即时可感知/快速完成/有节奏感/有叙事感）
 - 性能约束
 - 减弱动画适配
 
-## 3. 手势与操作规范
-- 点击/按压规范
-- 滑动/拖拽规范
-- 缩放/旋转规范
+## 3. 手势与操作意图
+- 点击/按压意图
+- 滑动/拖拽意图
+- 缩放/旋转意图
 - 键盘操作规范
 
 ## 4. 反馈机制规范
@@ -201,15 +208,15 @@ metadata:
     "persistence_rules": []
   },
   "animation": {
-    "easing_functions": [],
-    "duration_standards": [],
+    "transition_intents": [],
+    "duration_intents": [],
     "performance_constraints": [],
     "reduced_motion": {}
   },
   "gestures": {
-    "tap_press": {},
-    "swipe_drag": {},
-    "pinch_rotate": {},
+    "tap_press_intents": {},
+    "swipe_drag_intents": {},
+    "pinch_rotate_intents": {},
     "keyboard": {}
   },
   "feedback": {
@@ -253,16 +260,30 @@ metadata:
 | state_machines.states | array | 是 | 状态枚举，至少8种 |
 | state_machines.transitions | array | 是 | 状态转换表 |
 | state_machines.priority_rules | array | 是 | 状态优先级规则 |
-| animation | object | 是 | 动画与过渡规范 |
-| animation.easing_functions | array | 是 | 缓动函数定义 |
-| animation.duration_standards | array | 是 | 持续时间标准 |
-| gestures | object | 是 | 手势与操作规范 |
+| animation | object | 是 | 动画与过渡意图 |
+| animation.transition_intents | array | 是 | 过渡意图列表 |
+| animation.duration_intents | array | 是 | 动画时长意图列表 |
+| gestures | object | 是 | 手势与操作意图 |
 | feedback | object | 是 | 反馈机制规范 |
 | feedback.immediate | array | 是 | 即时反馈列表 |
 | feedback.result | array | 是 | 结果反馈列表 |
 | error_states | object | 是 | 异常状态交互 |
 | accessibility | object | 是 | 无障碍交互规范 |
 | accessibility.wcag_compliance | array | 是 | WCAG合规检查项 |
+
+## 决策规则
+
+- 当用户流程和原型规格均完整时，生成完整交互规范（状态机+动画+手势+反馈+无障碍）
+- 当仅有用户流程时，生成交互规范框架，动画和手势规范标注"待原型验证"
+- 当存在平台差异（iOS/Android/Web）时，分别定义平台特定交互规范
+- 需要人类确认的决策点：动画风格偏好、无障碍合规等级（AA/AAA）、手势冲突处理策略
+
+## 降级策略
+
+- 当用户流程缺失时：基于原型推导交互流程，状态机可能不够完整
+- 当原型规格缺失时：基于用户流程生成交互规范框架，组件交互规格待原型验证
+- 当设计交接文档缺失时：交互规范独立编号，后续需与交接文档对齐
+- 数据不可用时：生成通用交互规范模板，所有具体数值标注"待产品确认"
 
 ## 上游变更响应
 

@@ -1,11 +1,11 @@
 ---
 name: pm-00-guide
-description: 产品方法论全流程导航。当用户提到"做产品""产品规划""从0到1""产品方法论""产品流程"时使用，根据用户当前阶段推荐对应的模块和Skill。关键词：产品方法论、产品流程、产品规划、从0到1、产品全流程。
+description: 产品方法论全流程导航。当用户提到"做产品""产品规划""从0到1""产品方法论""产品流程""做系统""做平台""做App""做商城""做SaaS""新项目"时使用，根据用户当前阶段和业务意图推荐对应的模块和Skill。关键词：产品方法论、产品流程、产品规划、从0到1、产品全流程、做系统、做平台、做App、做商城、做SaaS、做电商、做社交、做社区、做管理系统、新项目启动、做小程序、做网站、加功能、改需求、优化产品、增长、数据分析。
 metadata:
   module: "产品方法论"
   sub-module: "导航入口"
   type: "guide"
-  version: "1.0"
+  version: "2.0"
 ---
 
 # 产品方法论全流程导航
@@ -13,50 +13,96 @@ metadata:
 ## 产品全流程全景图
 
 ```
-产品探索与发现 → 产品商业与战略 → 产品构思与设计（含PRD生成）
+产品探索与发现 → 产品商业与战略 → 产品构思与设计（含PRD生成+变更影响分析）
        ↓                                    ↓
-  产品度量设计(开发前)              产品开发与上线
+  产品度量设计(开发前)              [Backend开发与上线]
                                           ↓
                                   产品度量运营(上线后)
                                           ↓
-                              产品增长与运营 ←→ 产品监控与迭代
+                              产品增长与运营 ←→ 产品监控与迭代（含验收发布）
                                           ↓
                                     项目管理与执行（贯穿全程）
 ```
 
-## 9大模块与入口编排器
+## 8大模块与入口编排器
 
 | 阶段 | 模块 | 入口编排器 | 何时使用 |
 |------|------|-----------|---------|
 | 1 | 产品探索与发现 | user-research-orchestrator / insight-orchestrator / market-orchestrator / opportunity-orchestrator | 从0开始，不知道用户是谁、问题是什么 |
 | 2 | 产品商业与战略 | business-orchestrator / positioning-orchestrator / planning-orchestrator / stakeholder-orchestrator | 已发现问题，需要确定商业模式和战略 |
-| 3 | 产品构思与设计（含PRD生成） | requirements-orchestrator / ideation-orchestrator / design-orchestrator / validation-orchestrator | 已有战略，需要设计方案、生成PRD并验证 |
+| 3 | 产品构思与设计（含PRD生成+变更影响分析） | ideation-orchestrator / design-orchestrator / validation-orchestrator | 已有战略，需要设计方案、生成PRD并验证 |
 | 4 | 产品度量设计 | metrics-orchestrator | 开发前，需要设计指标体系和埋点方案 |
-| 5 | 产品开发与上线 | development-orchestrator / quality-orchestrator / release-orchestrator / retrospective-orchestrator | PRD完成，进入开发交付 |
-| 6 | 产品度量运营 | analysis-orchestrator / experiment-orchestrator / decision-orchestrator | 上线后，需要数据分析和实验验证 |
-| 7 | 产品增长与运营 | acquisition-orchestrator / activation-orchestrator / retention-orchestrator / revenue-orchestrator | 需要获取用户、提升留存、商业化 |
-| 8 | 产品监控与迭代 | monitoring-orchestrator / diagnosis-orchestrator / iteration-orchestrator | 需要监控预警、问题诊断、迭代优化 |
-| 9 | 项目管理与执行 | project-planning-orchestrator / agile-orchestrator / risk-orchestrator | 贯穿全程的项目管理 |
+| 5 | 产品度量运营 | analysis-orchestrator / experiment-orchestrator / decision-orchestrator | 上线后，需要数据分析和实验验证 |
+| 6 | 产品增长与运营 | acquisition-orchestrator / activation-orchestrator / retention-orchestrator / revenue-orchestrator | 需要获取用户、提升留存、商业化 |
+| 7 | 产品监控与迭代（含验收发布） | monitoring-orchestrator / diagnosis-orchestrator / iteration-orchestrator | 需要监控预警、问题诊断、迭代优化、验收发布 |
+| 8 | 项目管理与执行 | project-planning-orchestrator / agile-orchestrator / risk-orchestrator | 贯穿全程的项目管理 |
+
+## 意图路由
+
+根据用户的自然语言输入，快速路由到对应的编排器或模板。
+
+| 用户意图模式 | 路由目标 | 置信度 |
+|---|---|---|
+| 做\*系统 / 做\*平台 / 做\*App / 做\*商城 / 从0到1 / 新项目 / 做\*小程序 | product-launch-orchestrator | 高 |
+| 加功能 / 改需求 / 优化 / 迭代 / 升级 / 新增模块 | product-iteration-orchestrator | 高 |
+| 分析数据 / 看数据 / 漏斗 / 留存 / 异常 / 数据不好 | analysis-orchestrator | 高 |
+| 增长 / 获客 / 变现 / AARRR / 用户量 / 收入 | growth-orchestrator | 高 |
+| 写PRD / 需求文档 / 产品文档 / PRD | design-orchestrator | 高 |
+| 竞品 / 市场 / 行业 / 市场规模 | market-orchestrator | 中 |
+| 用户研究 / 调研 / 访谈 / Persona / 用户画像 | user-research-orchestrator | 高 |
+| 商业模式 / 定价 / 画布 / 怎么赚钱 | business-orchestrator | 高 |
+| 监控 / 告警 / 异常预警 / 线上问题 | monitoring-orchestrator | 高 |
+| 项目管理 / Sprint / 敏捷 / 站会 | agile-orchestrator | 高 |
+| 定位 / 差异化 / 竞争优势 | positioning-orchestrator | 中 |
+| 需求分析 / 需求洞察 / KANO / JTBD | insight-orchestrator | 高 |
+| 实验 / A/B测试 / 效果验证 | experiment-orchestrator | 高 |
+| 质量保障 / 测试 / 验收 | quality-acceptance | 中 |
+| 发布 / 上线 / 灰度 | release-gradual / release-auto-checklist / release-notes | 中 |
+
+## 业务场景映射
+
+将用户的业务语言翻译为方法论流程。当用户提到具体业务领域时，先识别业务类型，再推荐对应的场景模板和重点编排器。
+
+| 用户可能的说法 | 业务类型 | 推荐模板 | 重点编排器 | 特别关注 |
+|---|---|---|---|---|
+| 做交易商城 / 电商 / 购物平台 / 电商小程序 | C端交易型 | 模板2 | product-launch-orchestrator | 支付安全(api-design)、交易数据(data-architecture)、增长全链路(acquisition→revenue) |
+| 做SaaS / CRM / ERP / 管理系统 / OA / HR系统 | B端效率型 | 模板1 | product-launch-orchestrator | 权限设计(api-design)、多租户(data-architecture)、Stakeholder对齐 |
+| 做社交 / 社区 / 内容平台 / 论坛 / 短视频 | C端内容型 | 模板2 | product-launch-orchestrator | 网络效应增长(growth-orchestrator)、内容审核安全 |
+| 做金融 / 支付 / 借贷 / 保险 / 理财 | 金融合规型 | 模板1 | product-launch-orchestrator | 合规评估(Backend内建)、风控、交易流水(data-architecture) |
+| 做教育 / 课程 / 知识付费 / 培训 | 内容交易型 | 模板2 | product-launch-orchestrator | 付费模式(business-pricing)、学习路径设计 |
+| 做工具 / 效率 / 笔记 / 日历 / 待办 | 工具型 | 模板2 | product-launch-orchestrator | 激活(activation-aha)、留存策略(retention-orchestrator) |
+| 做医疗 / 健康 / 健身 / 问诊 | 医疗健康型 | 模板1 | product-launch-orchestrator | 隐私合规(Backend内建)、数据安全 |
+| 做物流 / 供应链 / 仓储 / 配送 | 供应链型 | 模板1 | product-launch-orchestrator | 数据架构(data-architecture)、系统集成 |
+| 做游戏 / 娱乐 / 直播 | 娱乐型 | 模板2 | product-launch-orchestrator | 用户体验设计、留存与付费(revenue-orchestrator) |
+| 做AI产品 / 智能助手 / ChatBot | AI产品型 | 模板2 | product-launch-orchestrator | 用户研究(user-research-orchestrator)、验证(validation-orchestrator) |
+
+### 业务场景映射使用方法
+
+1. **识别业务类型**：根据用户输入匹配上表的"用户可能的说法"列
+2. **推荐模板**：使用对应行的"推荐模板"启动流程
+3. **关注重点**：在流程执行中特别关注"特别关注"列标注的编排器和Skill
+4. **一键启动**：直接调用"重点编排器"列的跨域编排器，它会自动协调全流程
+5. **灵活调整**：业务场景映射是推荐起点，用户可根据实际情况调整流程
 
 ## 根据用户场景推荐
 
 ### 场景1：从0到1做新产品
-推荐顺序：模块1 → 2 → 3 → 4 → 5
+推荐顺序：模块1 → 2 → 3 → 4 → 7
 
 ### 场景2：已有产品需要优化
-推荐入口：模块6（数据分析）或 模块8（监控迭代）
+推荐入口：模块5（数据分析）或 模块7（监控迭代）
 
 ### 场景3：需要增长
-推荐入口：模块7（增长与运营）
+推荐入口：模块6（增长与运营）
 
 ### 场景4：需要做需求分析
-推荐入口：模块1的 insight-orchestrator 或 模块3的 requirements-orchestrator
+推荐入口：模块1的 insight-orchestrator 或 模块3的 design-prd
 
 ### 场景5：需要写PRD
 推荐入口：模块3 design-prd
 
 ### 场景6：项目管理和协作
-推荐入口：模块9 project-planning-orchestrator
+推荐入口：模块8 project-planning-orchestrator
 
 ## 场景模板
 
@@ -74,17 +120,18 @@ product-launch-orchestrator
     design-orchestrator → metrics-orchestrator
   阶段3：并行构建（PRD确认后同时启动）
     ├── api-design-orchestrator → data-architecture-orchestrator → backend-architecture-orchestrator
-    └── design-system-orchestrator → ui-frontend-orchestrator
+    └── ui-orchestrator
   阶段4：集成验证
-    frontend-integration-orchestrator
-  阶段5：交付上线
-    quality-orchestrator → release-orchestrator → retrospective-orchestrator
+    ui-orchestrator
+  阶段5：验收与发布
+    quality-acceptance → release-gradual / release-auto-checklist / release-notes
 ```
 
 关键数据契约：
-- design-orchestrator 输出 PRD → api-design-orchestrator 和 development-orchestrator 消费
-- positioning-orchestrator 输出定位陈述 → design-system-orchestrator 消费（品牌基因）
-- metrics-orchestrator 输出指标体系 → quality-orchestrator 消费（验收标准）
+- design-orchestrator 输出 PRD → api-design-orchestrator 消费
+- positioning-orchestrator 输出定位陈述 → ui-orchestrator 消费（品牌基因）
+- metrics-orchestrator 输出指标体系 → quality-acceptance 消费（验收标准）
+- 目标语言：用户在启动时指定（默认zh-CN），全链路传递至 ui-orchestrator
 
 ### 模板2：从0到1做C端/移动端产品
 
@@ -97,18 +144,19 @@ product-launch-orchestrator
   阶段2：战略与设计
     positioning-orchestrator → design-orchestrator → metrics-orchestrator
   阶段3：并行构建
-    ├── design-system-orchestrator（设计系统建立）
+    ├── ui-orchestrator（设计系统建立）
     └── api-design-orchestrator（后端API设计）
   阶段4：前端优先开发
-    ui-frontend-orchestrator → frontend-integration-orchestrator
-  阶段5：质量与发布
-    quality-orchestrator → release-orchestrator → retrospective-orchestrator
+    ui-orchestrator
+  阶段5：验收与发布
+    quality-acceptance → release-gradual / release-auto-checklist / release-notes
 ```
 
 关键数据契约：
-- design-orchestrator 输出 IA/原型 → ui-frontend-orchestrator 消费
-- api-design-orchestrator 输出 OpenAPI契约 → frontend-integration-orchestrator 消费
-- design-system-orchestrator 输出设计令牌 → ui-frontend-orchestrator 消费
+- design-orchestrator 输出 IA/原型 → ui-orchestrator 消费
+- api-design-orchestrator 输出 OpenAPI契约 → ui-orchestrator 消费
+- ui-orchestrator 内部传递设计令牌
+- 目标语言：用户在启动时指定（默认zh-CN），全链路传递至 ui-orchestrator
 
 ### 模板3：已有产品数据驱动优化
 
@@ -119,8 +167,8 @@ product-launch-orchestrator
 阶段2：迭代设计
   design-orchestrator（仅更新变更部分）→ metrics-orchestrator（补充新指标）
 
-阶段3：开发与验证
-  development-orchestrator → quality-orchestrator → release-orchestrator
+阶段3：验证与发布
+  quality-acceptance → release-gradual / release-auto-checklist / release-notes
 
 阶段4：效果验证
   experiment-orchestrator → analysis-orchestrator（对比前后数据）
@@ -140,7 +188,7 @@ product-launch-orchestrator
   experiment-orchestrator
 
 阶段3：规模化
-  release-orchestrator（全量发布增长方案）
+  release-gradual / release-notes（全量发布增长方案）
 ```
 
 关键数据契约：
@@ -154,21 +202,21 @@ product-launch-orchestrator
 ```
 product-iteration-orchestrator
   阶段1：需求分析
-    requirements-orchestrator
+    design-orchestrator（需求分析由 design-prd 覆盖）
   阶段2：方案设计
     design-orchestrator（仅变更模块）
   阶段3：影响分析与条件分支执行
     ├── API需变更 → api-design-orchestrator → data-architecture-orchestrator → backend-architecture-orchestrator
-    ├── UI需变更 → design-system-orchestrator → ui-frontend-orchestrator
+    ├── UI需变更 → ui-orchestrator
     └── 无变更 → 跳过
   阶段4：集成与交付
-    frontend-integration-orchestrator（仅API变更时）
-    → quality-orchestrator → release-orchestrator
+    ui-orchestrator（仅API变更时）
+    → quality-acceptance → release-gradual / release-auto-checklist / release-notes
 ```
 
 关键数据契约：
-- requirements-orchestrator 输出需求文档 → design-orchestrator 消费
-- design-orchestrator 输出更新后的PRD → development-orchestrator 消费
+- design-orchestrator 输出需求文档（由 design-prd 覆盖）→ 下游消费
+- design-orchestrator 输出更新后的PRD → change-impact-analysis 消费
 
 ### 模板使用说明
 
@@ -194,34 +242,31 @@ ALL/
 │   │   ├── insight-orchestrator/SKILL.md
 │   │   ├── market-orchestrator/SKILL.md
 │   │   └── opportunity-orchestrator/SKILL.md
-│   └── skills/                         ← Pipeline Skill（18个，含竞品分析报告生成）
+│   └── skills/                         ← Pipeline Skill（10个）
 │       ├── user-research-voice-analysis/SKILL.md
-│       ├── insight-jtbd/SKILL.md
-│       └── ...（17个Pipeline）
+│       ├── insight-analysis/SKILL.md
+│       └── ...（8个Pipeline）
 ├── pm-02-strategy/                     ← 模块2：产品商业与战略
 │   ├── orchestrators/（4个编排器）
-│   └── skills/（16个Pipeline）
-├── pm-03-design/                       ← 模块3：产品构思与设计（含PRD生成）
-│   ├── orchestrators/（4个编排器）
-│   └── skills/（15个Pipeline，含design-prd）
+│   └── skills/（11个Pipeline）
+├── pm-03-design/                       ← 模块3：产品构思与设计（含PRD生成+变更影响分析）
+│   ├── orchestrators/（3个编排器）
+│   └── skills/（12个Pipeline，含design-prd、change-impact-analysis）
 ├── pm-04-metrics-design/               ← 模块4：产品度量设计
 │   ├── orchestrators/（1个编排器）
 │   └── skills/（3个Pipeline）
-├── pm-05-development/                  ← 模块5：产品开发与上线
-│   ├── orchestrators/（4个编排器）
-│   └── skills/（8个Pipeline）
-├── pm-06-metrics-ops/                  ← 模块6：产品度量运营
+├── pm-05-metrics-ops/                  ← 模块5：产品度量运营
 │   ├── orchestrators/（3个编排器）
 │   └── skills/（8个Pipeline）
-├── pm-07-growth/                       ← 模块7：产品增长与运营
-│   ├── orchestrators/（4个编排器）
-│   └── skills/（10个Pipeline）
-├── pm-08-monitoring/                   ← 模块8：产品监控与迭代
+├── pm-06-growth/                       ← 模块6：产品增长与运营
+│   ├── orchestrators/（5个编排器）
+│   └── skills/（11个Pipeline）
+├── pm-07-monitoring/                   ← 模块7：产品监控与迭代（含验收发布）
 │   ├── orchestrators/（3个编排器）
-│   └── skills/（9个Pipeline）
-└── pm-09-project/                      ← 模块9：项目管理与执行
+│   └── skills/（11个Pipeline，含quality-acceptance、release-gradual、release-auto-checklist、release-notes）
+└── pm-08-project/                      ← 模块8：项目管理与执行
     ├── orchestrators/（3个编排器）
-    └── skills/（9个Pipeline）
+    └── skills/（8个Pipeline，agile-review含迭代复盘）
 ```
 
 ### 目录命名规则
@@ -255,97 +300,75 @@ output/
 │   ├── user-research-behavior-analysis/
 │   ├── user-research-user-modeling/
 │   ├── user-research-interview-assist/
-│   ├── insight-jtbd/
-│   ├── insight-5whys/
-│   ├── insight-requirement-layers/
-│   ├── insight-kano/
-│   ├── insight-priority-scoring/
+│   ├── user-research-report/
+│   ├── insight-analysis/
 │   ├── market-tam-som/
 │   ├── market-pest/
-│   ├── market-competitor-intel/
-│   ├── market-competitor-quadrant/
-│   ├── market-competitor-report/
-│   ├── opportunity-scoring/
-│   ├── opportunity-hmw/
-│   ├── opportunity-problem-statement/
-│   └── opportunity-brief/
+│   ├── market-competitor-analysis/
+│   └── opportunity-definition/
 ├── pm-strategy/                   ← 模块2：产品商业与战略
 │   ├── business-model-canvas/
 │   ├── business-value-fit/
 │   ├── business-pricing/
-│   ├── positioning-statement/
-│   ├── positioning-value-curve/
-│   ├── positioning-differentiation/
-│   ├── positioning-exclusion/
-│   ├── planning-swot/
-│   ├── planning-porter-five-forces/
+│   ├── business-strategy-report/
+│   ├── positioning-strategy/
+│   ├── strategic-analysis/
 │   ├── planning-okr/
 │   ├── planning-north-star/
 │   ├── planning-roadmap/
-│   ├── planning-ansoff/
-│   ├── stakeholder-map/
-│   ├── stakeholder-strategy-doc/
-│   └── stakeholder-brief/
-├── pm-design/                     ← 模块3：产品构思与设计（含PRD生成）
-│   ├── requirements-collection/
-│   ├── requirements-understanding/
-│   ├── requirements-prioritization/
-│   ├── ideation-hmw/
-│   ├── ideation-scamper/
-│   ├── ideation-inversion/
-│   ├── ideation-convergence/
+│   ├── stakeholder-analysis/
+│   └── product-proposal/
+├── pm-design/                     ← 模块3：产品构思与设计（含PRD生成+变更影响分析）
+│   ├── ideation-workshop/
 │   ├── design-prd/
 │   ├── design-ia/
 │   ├── design-userflow/
 │   ├── design-prototype/
+│   ├── design-handoff-spec/
+│   ├── change-impact-analysis/
 │   ├── validation-assumption-map/
 │   ├── validation-mvp/
 │   ├── validation-experiment/
-│   └── validation-usability/
+│   ├── validation-usability/
+│   └── interaction-spec/
 ├── pm-metrics-design/             ← 模块4：产品度量设计
 │   ├── metrics-system/
 │   ├── tracking-plan/
 │   └── metrics-dashboard/
-├── pm-development/                ← 模块5：产品开发与上线
-│   ├── development-task-breakdown/
-│   ├── development-auto-review/
-│   ├── development-prd-sync/
-│   ├── quality-auto-test/
-│   ├── quality-auto-acceptance/
-│   ├── release-gradual/
-│   ├── release-auto-checklist/
-│   └── retrospective-auto/
-├── pm-metrics-ops/                ← 模块6：产品度量运营
+├── pm-metrics-ops/                ← 模块5：产品度量运营
 │   ├── analysis-anomaly/
 │   ├── analysis-funnel/
 │   ├── analysis-retention/
+│   ├── data-analysis-report/
 │   ├── experiment-design/
 │   ├── experiment-execution/
 │   ├── decision-dace/
-│   ├── decision-insight/
 │   └── decision-culture/
-├── pm-growth/                     ← 模块7：产品增长与运营
+├── pm-growth/                     ← 模块6：产品增长与运营
 │   ├── growth-model/
-│   ├── acquisition-channel/
-│   ├── acquisition-optimize/
+│   ├── growth-strategy-report/
+│   ├── gtm-strategy/
+│   ├── product-operations-manual/
+│   ├── acquisition-analysis/
 │   ├── activation-aha/
 │   ├── activation-onboarding/
-│   ├── retention-churn/
-│   ├── retention-engagement/
+│   ├── retention-management/
 │   ├── revenue-funnel/
 │   ├── revenue-nrr/
 │   └── revenue-upsell/
-├── pm-monitoring/                 ← 模块8：产品监控与迭代
-│   ├── monitoring-system/
-│   ├── monitoring-anomaly/
-│   ├── monitoring-dashboard/
-│   ├── monitoring-escalation/
+├── pm-monitoring/                 ← 模块7：产品监控与迭代（含验收发布）
+│   ├── monitoring-pipeline/
 │   ├── diagnosis-health/
 │   ├── diagnosis-competition/
-│   ├── iteration-backlog/
-│   ├── iteration-prioritization/
-│   └── iteration-retrospective/
-└── pm-project/                    ← 模块9：项目管理与执行
+│   ├── competitor-monitoring-report/
+│   ├── user-feedback-loop-report/
+│   ├── iteration-decision/
+│   ├── quality-acceptance/
+│   ├── release-gradual/
+│   ├── release-auto-checklist/
+│   ├── release-notes/
+│   └── product-sunset-plan/
+└── pm-project/                    ← 模块8：项目管理与执行
     ├── planning-project-charter/
     ├── planning-resource/
     ├── planning-kickoff/
@@ -353,8 +376,19 @@ output/
     ├── agile-daily-sync/
     ├── agile-review/
     ├── risk-identification/
-    ├── risk-monitoring/
-    └── risk-escalation/
+    └── risk-management/
+└── phase-reports/                 ← 编排器阶段总结
+    ├── pm-discovery/
+    ├── pm-strategy/
+    ├── pm-design/
+    ├── pm-metrics-design/
+    ├── pm-metrics-ops/
+    ├── pm-growth/
+    ├── pm-monitoring/
+    ├── pm-project/
+    ├── ui/
+    ├── backend/
+    └── cross-domain/
 ```
 
 ### 跨模块文件引用
@@ -368,7 +402,7 @@ output/pm-{源模块}/{源skill-name}/{文件名}
 示例：
 - 模块3的Skill读取模块1的用户研究输出：`output/pm-discovery/user-research-voice-analysis/voice-analysis.json`
 - 模块3的PRD读取模块2的战略输出：`output/pm-strategy/planning-okr/okr.json`
-- 模块5的开发Skill读取PRD：`output/pm-design/design-prd/prd.md`
+- 模块8的验收Skill读取PRD：`output/pm-design/design-prd/prd.md`
 
 ### 文件命名约定
 
@@ -398,7 +432,7 @@ output/pm-{源模块}/{源skill-name}/{文件名}
 | 嵌套字段 | ... | ... | ... |
 ```
 
-> 注：校验规则为渐进式添加。核心 Skill（design-prd、api-contract、design-token、metrics-system 等）已包含完整校验规则，其余 Skill 按需补充。
+> 注：校验规则为渐进式添加。核心 Skill（design-prd、api-design、design-system、metrics-system 等）已包含完整校验规则，其余 Skill 按需补充。
 
 ## AI能力边界
 

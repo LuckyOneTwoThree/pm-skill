@@ -1,15 +1,19 @@
----
+﻿---
 name: business-value-fit
-description: 当需要评估价值主张与用户需求的匹配度时使用。价值主张匹配度自动评估，AI自动执行，评估商业画布中的价值主张与用户痛点/收益的匹配程度。关键词：价值主张匹配、痛点覆盖、收益验证、匹配度评分。
+description: 当需要评估价值主张与用户需求的匹配度时使用。价值主张匹配度自动评估，AI自动执行，评估商业画布中的价值主张与用户痛点/收益的匹配程度。关键词：价值主张匹配、痛点覆盖、收益验证、匹配度评分、用户需要吗、价值对不对。
 metadata:
   module: "产品商业与战略"
   sub-module: "商业模式设计"
   type: "pipeline"
-  version: "2.0"
+  version: "2.1"
+  domain_tags: ["SaaS", "通用"]
+  trigger_examples:
+    - "我们的价值主张对不对"
+    - "用户真的需要这个功能吗"
   interaction_mode: "ai_suggest_human_approve"
 ---
 
-# Pipeline 2：价值主张匹配度自动评估
+# 价值主张匹配度自动评估
 
 ## 核心原则
 
@@ -78,7 +82,7 @@ metadata:
       }
     ]
   },
-  "opportunity_brief": {
+  "opportunity_definition": {
     "opportunity_description": "企业培训数字化渗透率仅28%，AI个性化学习需求年增长45%",
     "evidence": ["艾瑞咨询2024企业培训市场报告", "国务院职业教育改革实施方案"]
   }
@@ -368,8 +372,7 @@ Overall Fit Score = (Pain Alignment Score × 0.6) + (Gain Validation Score × 0.
 | bmc.json + 用户研究数据 | 用户提供价值主张和用户痛点描述 → 直接评估匹配度 | 整体置信度降低，评分缺乏数据锚定 |
 | 所有上游文件均缺失 | 提示用户先执行前序阶段，或基于用户提供价值主张和用户痛点直接评估匹配度 | 整体置信度显著降低，评估仅为假设推断 |
 
-数据获取说明：
-- 本Skill需要BMC和用户研究数据，请通过以下方式之一提供：
+## 数据获取说明`n本Skill需要BMC和用户研究数据，请通过以下方式之一提供：
   1. 直接描述价值主张和用户痛点
   2. 上传bmc.json / persona.json / voice-analysis.json文件
   3. 提供数据文件路径
@@ -392,7 +395,7 @@ Overall Fit Score = (Pain Alignment Score × 0.6) + (Gain Validation Score × 0.
 
 | 变更类型 | 影响范围 | 通知方式 |
 |----------|----------|----------|
-| 匹配度评分变更 | business-pricing、positioning-statement | 输出文件版本号+变更摘要 |
+| 匹配度评分变更 | business-pricing、positioning-strategy | 输出文件版本号+变更摘要 |
 | 痛点覆盖率变更 | business-model-canvas | 输出文件版本号+变更摘要 |
 | 改进建议新增 | business-model-canvas | 输出文件版本号+变更摘要 |
 | 警告触发/解除 | business-pricing | 输出文件版本号+变更摘要 |

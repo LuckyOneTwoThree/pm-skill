@@ -1,11 +1,16 @@
----
+﻿---
 name: user-research-voice-analysis
-description: 当需要从用户评论、客服工单、社媒提及、社区帖子中提取情感、主题和痛点时使用。大规模用户声音分析Pipeline。关键词：用户声音分析、VOC、情感分析、痛点提取、用户反馈分析。
+description: 当需要从用户评论、客服工单、社媒提及、社区帖子中提取情感、主题和痛点时使用。大规模用户声音分析Pipeline。关键词：用户声音分析、VOC、情感分析、痛点提取、用户反馈分析、用户吐槽、用户评价、用户反馈。
 metadata:
   module: "产品探索与发现"
   sub-module: "用户研究"
   type: "pipeline"
-  version: "2.0"
+  version: "2.1"
+  domain_tags: ["互联网", "消费", "通用"]
+  trigger_examples:
+    - "用户都在吐槽什么"
+    - "帮我分析用户反馈"
+    - "用户评价怎么样"
   interaction_mode: "ai_auto"
 ---
 
@@ -272,8 +277,7 @@ metadata:
 | 若用户未提供community_posts | 跳过该输入相关步骤，社区帖子数据不参与分析 | data_sources_used缺少community_posts，深度用户洞察可能缺失 |
 | 若用户未提供analysis_config | 跳过该输入相关步骤，使用默认分析配置 | 使用默认配置，分析参数可能非最优 |
 
-数据获取说明：
-- 本Skill需要用户声音数据（评论、工单、社媒提及等），请通过以下方式之一提供：
+## 数据获取说明`n本Skill需要用户声音数据（评论、工单、社媒提及等），请通过以下方式之一提供：
   1. 直接粘贴反馈文本内容
   2. 上传CSV/Excel/JSON文件
   3. 提供数据文件路径

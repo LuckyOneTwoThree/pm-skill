@@ -1,15 +1,20 @@
----
+﻿---
 name: design-userflow
-description: 当需要设计用户流程和任务流程时使用。用户流程自动设计，从PRD和IA方案自动生成Task Flow和User Flow，包含条件分支、异常路径、质量检查和优化建议。适用于核心用户路径梳理和流程优化。关键词：用户流程、User Flow、Task Flow、流程设计、路径优化。
+description: 当需要设计用户流程和任务流程时使用。用户流程自动设计，从PRD和IA方案自动生成Task Flow和User Flow，包含条件分支、异常路径、质量检查和优化建议。适用于核心用户路径梳理和流程优化。关键词：用户流程、User Flow、Task Flow、流程设计、路径优化、用户路径、操作流程。
 metadata:
   module: "产品构思与设计"
   sub-module: "产品设计与原型"
   type: "pipeline"
-  version: "2.0"
+  version: "2.1"
+  domain_tags: ["互联网", "软件", "通用"]
+  trigger_examples:
+    - "用户操作流程怎么画"
+    - "帮我梳理用户路径"
+    - "任务流程怎么设计"
   interaction_mode: "ai_suggest_human_approve"
 ---
 
-# Pipeline 10: 用户流程自动设计
+# 用户流程自动设计
 
 ## 核心原则
 
@@ -111,6 +116,8 @@ metadata:
 }
 ```
 
+**输出校验规则**：详见下方输出校验规则章节
+
 ## 决策规则
 
 | 条件 | 动作 |
@@ -183,8 +190,7 @@ metadata:
 | 异常路径变更 | design-prototype、interaction-spec | 标记异常路径变更，触发原型和交互规范更新 |
 | 死胡同修复 | design-prototype | 标记修复内容，触发原型更新 |
 
-数据获取说明：
-- 本Skill需要PRD和IA方案数据，请通过以下方式之一提供：
+## 数据获取说明`n本Skill需要PRD和IA方案数据，请通过以下方式之一提供：
   1. 直接描述功能流程和用户任务
   2. 上传PRD文档 / ia_proposals.json文件
   3. 提供数据文件路径
