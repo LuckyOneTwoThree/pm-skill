@@ -31,26 +31,36 @@
 | business-pricing | 生成多个定价方案（成本加成/价值定价/竞争定价） | BMC、竞品情报、价值匹配结果 | pricing.json |
 | business-strategy-report | 商业战略规划报告：整合商业画布、SWOT、OKR、路线图、定位和利益相关者数据，补充战略推演和执行路径 | 商业画布、SWOT、OKR、路线图、定位 | business-strategy-report.json |
 
-### 产品定位与差异化（1个）
+### 产品定位与差异化（5个）
 
 | Skill | 作用 | 输入 | 输出 |
 |-------|------|------|------|
-| positioning-strategy | 整合定位陈述、价值曲线、差异化评估和排除策略 | BMC、竞品分析、用户洞察 | positioning-strategy.json |
+| positioning-statement | 定位陈述生成 | BMC、竞品分析、用户洞察 | positioning-statement.json |
+| positioning-value-curve | 价值曲线分析 | 竞品分析、用户洞察 | value-curve.json |
+| positioning-differentiation | 差异化评估 | 定位陈述、竞品分析 | differentiation.json |
+| positioning-exclusion | 排他策略 | 定位陈述、差异化评估 | exclusion.json |
+| positioning-strategy | 定位策略（整合型），整合定位陈述、价值曲线、差异化评估和排除策略 | BMC、竞品分析、用户洞察 | positioning-strategy.json |
 
-### 战略规划与路线图（4个）
+### 战略规划与路线图（7个）
 
 | Skill | 作用 | 输入 | 输出 |
 |-------|------|------|------|
-| strategic-analysis | 战略分析，自动选择战略分析框架（SWOT/波特五力/Ansoff矩阵） | 市场分析、竞品情报、内部资源 | strategic-analysis.json |
+| planning-swot | SWOT分析 | 市场分析、竞品情报、内部资源 | swot.json |
+| planning-porter-five-forces | 波特五力分析 | 行业数据、竞品情报 | porter-five-forces.json |
+| planning-ansoff | Ansoff矩阵 | SWOT方向、市场数据 | ansoff.json |
+| strategic-analysis | 战略分析（整合型），自动选择战略分析框架（SWOT/波特五力/Ansoff矩阵） | 市场分析、竞品情报、内部资源 | strategic-analysis.json |
 | planning-okr | 生成OKR候选，对齐战略方向 | SWOT方向、北极星指标 | okr.json |
 | planning-north-star | 推荐北极星指标候选 | OKR、业务目标 | north-star.json |
 | planning-roadmap | 生成产品路线图，RICE评分排序 | OKR、需求列表、资源约束 | roadmap.json |
 
-### Stakeholder对齐（1个）
+### Stakeholder对齐（4个）
 
 | Skill | 作用 | 输入 | 输出 |
 |-------|------|------|------|
-| stakeholder-analysis | 绘制Stakeholder地图、编写战略文档、生成战略简报 | 项目信息、组织架构、SWOT、OKR、路线图、定位 | stakeholder-analysis.json |
+| stakeholder-map | Stakeholder地图 | 项目信息、组织架构 | stakeholder-map.json |
+| stakeholder-brief | 战略简报 | Stakeholder地图、SWOT、OKR、路线图、定位 | stakeholder-brief.json |
+| stakeholder-strategy-doc | 战略文档 | Stakeholder地图、战略数据 | strategy-doc.json |
+| stakeholder-analysis | Stakeholder分析（整合型），绘制Stakeholder地图、编写战略文档、生成战略简报 | 项目信息、组织架构、SWOT、OKR、路线图、定位 | stakeholder-analysis.json |
 
 ### 产品提案（1个）
 
@@ -84,11 +94,21 @@ output/pm-strategy/
 ├── business-value-fit/
 ├── business-pricing/
 ├── business-strategy-report/
+├── positioning-statement/
+├── positioning-value-curve/
+├── positioning-differentiation/
+├── positioning-exclusion/
 ├── positioning-strategy/
+├── planning-swot/
+├── planning-porter-five-forces/
+├── planning-ansoff/
 ├── strategic-analysis/
 ├── planning-okr/
 ├── planning-north-star/
 ├── planning-roadmap/
+├── stakeholder-map/
+├── stakeholder-brief/
+├── stakeholder-strategy-doc/
 ├── stakeholder-analysis/
 └── product-proposal/
 ```

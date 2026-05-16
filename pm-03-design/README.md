@@ -17,16 +17,30 @@
 | 子模块 | 编排器 | 作用 | 何时调用 |
 |--------|--------|------|----------|
 | 创意发散与方案构思 | ideation-orchestrator | 通过HMW、SCAMPER、逆转等方法发散创意并收敛 | 需要生成和筛选产品方案时 |
+| 需求管理 | requirements-orchestrator | 需求收集、理解、优先级排序和规格化 | 需要系统化管理产品需求时 |
 | 产品设计与原型 | design-orchestrator | 生成PRD、设计信息架构、用户流程和交互原型 | 需要将方案具象化为设计时 |
 | 方案验证 | validation-orchestrator | 识别关键假设、定义MVP、设计实验、可用性测试 | 需要验证方案可行性时 |
 
 ## Pipeline Skill 清单
 
-### 创意发散与方案构思（1个）
+### 创意发散与方案构思（5个）
 
 | Skill | Pipeline | 作用 | 输入 | 输出 |
 |-------|----------|------|------|------|
-| ideation-workshop | 4 | HMW问题重构、SCAMPER创意发散、逆转分析、收敛Top5方案 | 问题陈述、需求理解 | ideation-workshop.json |
+| ideation-hmw | 4 | HMW问题重构：将问题陈述转化为发散性HMW问题 | 问题陈述 | hmw-questions.json |
+| ideation-scamper | 4 | SCAMPER创意发散：7个维度系统化发散创意 | HMW问题、需求理解 | scamper-ideas.json |
+| ideation-inversion | 4 | 逆转分析：通过逆向思维发现隐藏机会 | HMW问题 | inversion-ideas.json |
+| ideation-convergence | 4 | 收敛Top5方案：多维度评估收敛为Top5 | 发散创意 | convergence-result.json |
+| ideation-workshop | 4 | 创意工作坊（整合型）：HMW+SCAMPER+逆转+收敛 | 问题陈述、需求理解 | ideation-workshop.json |
+
+### 需求管理（4个）
+
+| Skill | Pipeline | 作用 | 输入 | 输出 |
+|-------|----------|------|------|------|
+| requirements-collection | 4 | 需求收集：多渠道收集和分类需求 | 用户研究、利益相关者输入 | requirements-raw.json |
+| requirements-understanding | 4 | 需求理解：解析需求语义和意图 | 原始需求 | requirements-understood.json |
+| requirements-prioritization | 4 | 需求优先级排序：多维度评估排序 | 理解后需求、业务目标 | requirements-prioritized.json |
+| requirements-srs | 4 | 需求规格说明书：生成结构化SRS | 优先级需求 | srs.json |
 
 ### 产品设计与原型（6个）
 
@@ -57,16 +71,17 @@
 ## 执行顺序
 
 ```
-阶段1            阶段2              阶段3                阶段4
-┌──────────┐  ┌──────────────┐  ┌──────────────────┐  ┌──────────┐
-│ 创意发散  │→│ 产品设计与    │→│ 方案验证          │→│ 交互规范  │
-│ 与方案构思│  │ 原型          │  │                   │  │          │
-└──────────┘  └──────────────┘  └──────────────────┘  └──────────┘
- Pipeline 4     Pipeline 5-9     Pipeline 10-13      Pipeline 14
+阶段1            阶段2              阶段3                阶段4              阶段5
+┌──────────┐  ┌──────────┐  ┌──────────────┐  ┌──────────────────┐  ┌──────────┐
+│ 创意发散  │→│ 需求管理  │→│ 产品设计与    │→│ 方案验证          │→│ 交互规范  │
+│ 与方案构思│  │          │  │ 原型          │  │                   │  │          │
+└──────────┘  └──────────┘  └──────────────┘  └──────────────────┘  └──────────┘
+ Pipeline 4     Pipeline 4     Pipeline 5-9     Pipeline 10-13      Pipeline 14
 ```
 
-- 创意发散与方案构思是起点，为产品设计提供输入
-- PRD生成（Pipeline 5）基于创意方案生成标准化需求文档，是产品设计与原型的第一步
+- 创意发散与方案构思是起点，为需求管理提供输入
+- 需求管理承接创意方案，系统化收集、理解、排序和规格化需求
+- PRD生成（Pipeline 5）基于创意方案和需求规格生成标准化需求文档，是产品设计与原型的第一步
 - 产品设计（Pipeline 6-9）依赖PRD进行IA、流程和原型设计
 - 方案验证依赖原型和假设地图
 - 验证结果可能回溯到创意阶段进行迭代
@@ -75,7 +90,15 @@
 
 ```
 output/pm-design/
+├── ideation-hmw/
+├── ideation-scamper/
+├── ideation-inversion/
+├── ideation-convergence/
 ├── ideation-workshop/
+├── requirements-collection/
+├── requirements-understanding/
+├── requirements-prioritization/
+├── requirements-srs/
 ├── design-prd/
 ├── design-ia/
 ├── design-userflow/
