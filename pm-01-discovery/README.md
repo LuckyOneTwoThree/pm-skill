@@ -32,36 +32,24 @@
 | user-research-interview-assist | 访谈辅助：生成访谈提纲、记录分析 | 访谈目标/记录 | interview-output.json |
 | user-research-report | 用户研究报告：整合声音分析、行为分析、用户建模和访谈数据，补充研究方法论和行动建议 | 用户研究各输出 | user-research-report.json |
 
-### 需求洞察（6个）
+### 需求洞察（1个）
 
 | Skill | 作用 | 输入 | 输出 |
 |-------|------|------|------|
-| insight-5whys | 5Whys根因分析：通过连续追问挖掘问题根本原因 | 问题描述/用户反馈 | 5whys-analysis.json |
-| insight-jtbd | JTBD用户任务分析：识别用户想要完成的任务及期望成果 | 用户研究输出 | jtbd.json |
-| insight-kano | Kano需求分类：将需求分为基本型、期望型、兴奋型 | 需求列表 | kano-classification.json |
-| insight-requirement-layers | 需求层次分析：将需求拆解为表层/深层/根本层次 | 需求列表、用户洞察 | requirement-layers.json |
-| insight-priority-scoring | 需求优先级评分：基于多维指标对需求排序 | 需求列表、Kano分类、业务目标 | priority-scoring.json |
 | insight-analysis | 需求洞察分析：整合JTBD、5Whys、需求层次、Kano分类和优先级评分 | 用户研究输出 | insight-analysis.json |
 
-### 市场分析（6个）
+### 市场分析（3个）
 
 | Skill | 作用 | 输入 | 输出 |
 |-------|------|------|------|
 | market-tam-som | 市场规模估算（TAM/SAM/SOM） | 行业数据 | tam-som.json |
 | market-pest | PEST 宏观环境分析 | 行业信息 | pest.json |
-| market-competitor-intel | 竞品情报收集：系统化收集竞品关键信息 | 竞品信息源 | competitor-intel.json |
-| market-competitor-quadrant | 竞品象限分析：将竞品映射到二维象限进行定位 | 竞品情报 | competitor-quadrant.json |
-| market-competitor-report | 竞品分析报告：整合情报与象限分析生成完整报告 | 竞品情报、象限分析 | competitor-report.json |
 | market-competitor-analysis | 竞品分析：整合竞品情报收集、象限分析、SWOT分析、竞争定位图、护城河评估和差异化策略 | 竞品信息 | competitor-analysis.json |
 
-### 机会识别（5个）
+### 机会识别（1个）
 
 | Skill | 作用 | 输入 | 输出 |
 |-------|------|------|------|
-| opportunity-scoring | 机会评分：对潜在机会进行多维评分和排序 | 洞察+市场分析 | opportunity-scoring.json |
-| opportunity-problem-statement | 问题陈述：将洞察提炼为清晰可操作的问题陈述 | 洞察分析 | problem-statement.json |
-| opportunity-hmw | HMW问题重构：用"How Might We"框架发散问题视角 | 问题陈述 | hmw-questions.json |
-| opportunity-brief | 机会简报：汇总评分、问题陈述和HMW生成机会简报 | 机会评分+问题陈述+HMW | opportunity-brief.json |
 | opportunity-definition | 机会定义：整合机会评分、问题陈述、HMW发散和机会简报 | 洞察+市场分析 | opportunity-definition.json |
 
 ## 执行顺序
@@ -88,22 +76,10 @@ output/pm-discovery/
 ├── user-research-user-modeling/
 ├── user-research-interview-assist/
 ├── user-research-report/
-├── insight-5whys/
-├── insight-jtbd/
-├── insight-kano/
-├── insight-requirement-layers/
-├── insight-priority-scoring/
 ├── insight-analysis/
 ├── market-tam-som/
 ├── market-pest/
-├── market-competitor-intel/
-├── market-competitor-quadrant/
-├── market-competitor-report/
 ├── market-competitor-analysis/
-├── opportunity-scoring/
-├── opportunity-problem-statement/
-├── opportunity-hmw/
-├── opportunity-brief/
 └── opportunity-definition/
 ```
 

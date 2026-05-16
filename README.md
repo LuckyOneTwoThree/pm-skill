@@ -2,7 +2,7 @@
 
 ## 这是什么
 
-将完整的产品方法论闭环提取为 132 个 AI Agent Skill（28 个编排器 + 103 个 Pipeline Skill + 1 个导航），兼容 Trae / Claude Code 的 Agent Skills 开放标准。每个 Skill 是一个可独立执行的方法论 Pipeline，编排器负责调度子 Skill 的执行顺序。
+将完整的产品方法论闭环提取为 103 个 AI Agent Skill，兼容 Trae / Claude Code 的 Agent Skills 开放标准。每个 Skill 是一个可独立执行的方法论 Pipeline，编排器负责调度子 Skill 的执行顺序。
 
 ## 快速开始
 
@@ -24,7 +24,7 @@ ALL/pm-01-discovery/skills/user-research-voice-analysis/SKILL.md
 ├── user-research-voice-analysis/SKILL.md
 ├── insight-orchestrator/SKILL.md
 ├── insight-analysis/SKILL.md
-├── ...（131个Skill扁平平铺）
+├── ...（102个Skill扁平平铺）
 └── risk-management/SKILL.md
 ```
 
@@ -43,13 +43,13 @@ ALL/
 ├── pm-00-guide/               导航入口（非标准 Skill，类似本 README 的交互版）
 ├── pm-01-discovery/           模块1：产品探索与发现
 ├── pm-02-strategy/            模块2：产品商业与战略
-├── pm-03-design/              模块3：产品构思与设计（含PRD生成+需求管理+变更影响分析）
+├── pm-03-design/              模块3：产品构思与设计（含PRD生成+变更影响分析）
 ├── pm-04-metrics-design/      模块4：产品度量设计（开发前）
 ├── pm-05-metrics-ops/         模块5：产品度量运营（上线后）
 ├── pm-06-growth/              模块6：产品增长与运营
 ├── pm-07-monitoring/          模块7：产品监控与迭代（含验收发布）
 ├── pm-08-project/             模块8：项目管理与执行（贯穿全程）
-└── [pm-05-development 已移除]  开发交付能力已由 Backend 模块内建，验收/发布技能迁至 pm-07
+└── [pm-05-development 已移除]  开发交付能力已由 Backend 模块内建，验收/发布技能迁至 pm-08
 ```
 
 每个模块目录下：
@@ -59,7 +59,7 @@ ALL/
 ## 模块流程顺序
 
 ```
-探索与发现 → 商业与战略 → 构思与设计（含PRD生成+需求管理+变更影响分析）
+探索与发现 → 商业与战略 → 构思与设计（含PRD生成+变更影响分析）
      ↓                                       ↓
  度量设计(开发前)                     [Backend开发与上线]
                                              ↓
@@ -78,9 +78,9 @@ ALL/
 
 | 子模块 | 编排器 | Pipeline Skill | 核心产出 |
 |--------|--------|---------------|----------|
-| 需求洞察 | insight-orchestrator | insight-5whys / insight-jtbd / insight-kano / insight-requirement-layers / insight-priority-scoring / insight-analysis | 需求优先级 |
-| 市场竞品 | market-orchestrator | market-tam-som / market-pest / market-competitor-intel / market-competitor-quadrant / market-competitor-report / market-competitor-analysis | 竞品分析报告+差异化策略 |
-| 机会识别 | opportunity-orchestrator | opportunity-scoring / opportunity-problem-statement / opportunity-hmw / opportunity-brief / opportunity-definition | 机会简报 |
+| 需求洞察 | insight-orchestrator | insight-analysis | 需求优先级 |
+| 市场竞品 | market-orchestrator | market-tam-som / market-pest / market-competitor-analysis | 竞品分析报告+差异化策略 |
+| 机会识别 | opportunity-orchestrator | opportunity-definition | 机会简报 |
 | 用户研究 | user-research-orchestrator | user-research-voice-analysis / user-research-behavior-analysis / user-research-user-modeling / user-research-interview-assist / user-research-report | 用户研究报告+行动建议 |
 
 ### 模块2：产品商业与战略
@@ -90,9 +90,9 @@ ALL/
 | 子模块 | 编排器 | Pipeline Skill | 核心产出 |
 |--------|--------|---------------|----------|
 | 商业模式 | business-orchestrator | business-model-canvas / business-value-fit / business-pricing / business-strategy-report | 商业战略规划报告 |
-| 战略规划 | planning-orchestrator | planning-swot / planning-porter-five-forces / planning-ansoff / strategic-analysis / product-proposal / planning-okr / planning-north-star / planning-roadmap | 产品提案+OKR+路线图 |
-| 产品定位 | positioning-orchestrator | positioning-statement / positioning-value-curve / positioning-differentiation / positioning-exclusion / positioning-strategy | 定位陈述 → **消费方：ui design-system** |
-| Stakeholder | stakeholder-orchestrator | stakeholder-map / stakeholder-brief / stakeholder-strategy-doc / stakeholder-analysis | 战略简报 |
+| 战略规划 | planning-orchestrator | product-proposal / strategic-analysis / planning-okr / planning-north-star / planning-roadmap | 产品提案+OKR+路线图 |
+| 产品定位 | positioning-orchestrator | positioning-strategy | 定位陈述 → **消费方：ui design-system** |
+| Stakeholder | stakeholder-orchestrator | stakeholder-analysis | 战略简报 |
 
 ### 模块3：产品构思与设计
 
@@ -100,8 +100,7 @@ ALL/
 
 | 子模块 | 编排器 | Pipeline Skill | 核心产出 |
 |--------|--------|---------------|----------|
-| 创意发散 | ideation-orchestrator | ideation-hmw / ideation-scamper / ideation-inversion / ideation-convergence / ideation-workshop | Top5方案 |
-| 需求管理 | requirements-orchestrator | requirements-collection / requirements-understanding / requirements-prioritization / requirements-srs | 需求规格说明书 |
+| 创意发散 | ideation-orchestrator | ideation-workshop | Top5方案 |
 | 产品设计与原型 | design-orchestrator | design-prd / design-ia / design-userflow / design-prototype / interaction-spec / design-handoff-spec | PRD+原型+交互规范+设计交接 → **消费方：ui page-assembly / ui-component-gen / backend api-contract** |
 | 方案验证 | validation-orchestrator | validation-assumption-map / validation-mvp / validation-experiment / validation-usability | MVP范围 |
 | 变更影响分析 | — | change-impact-analysis | 变更影响分析报告 → **消费方：backend api-contract / ui page-assembly** |
@@ -118,9 +117,9 @@ ALL/
 
 ### ~~模块5：产品开发与上线~~（已移除）
 
-> ⚠️ **pm-05-development 模块已移除**。开发交付相关能力（任务分解、PRD同步、ADR、数据字典、安全合规、技术债务登记）已由 Backend 模块内建覆盖；quality-auto-test 由 UI/Backend 覆盖；验收与发布技能迁至模块7（监控与迭代）；迭代复盘能力合并至模块8 agile-review。
+> ⚠️ **pm-05-development 模块已移除**。开发交付相关能力（任务分解、PRD同步、ADR、数据字典、安全合规、技术债务登记）已由 Backend 模块内建覆盖；quality-auto-test 由 UI/Backend 覆盖；验收与发布技能迁至模块8（监控与迭代）；迭代复盘能力合并至模块9 agile-review。
 
-### 模块5：产品度量运营（上线后）
+### 模块6：产品度量运营（上线后）
 
 上线后通过数据分析、决策闭环、实验验证持续优化。
 
@@ -130,7 +129,7 @@ ALL/
 | 决策闭环 | decision-orchestrator | decision-dace / decision-culture | DACE决策循环 |
 | 实验验证 | experiment-orchestrator | experiment-design / experiment-execution | A/B测试报告+行动建议 |
 
-### 模块6：产品增长与运营
+### 模块7：产品增长与运营
 
 围绕AARRR模型的获客、激活、留存、变现四个维度驱动增长。
 
@@ -142,7 +141,7 @@ ALL/
 | 留存 | retention-orchestrator | retention-management | 流失预警+分层运营 |
 | 变现 | revenue-orchestrator | revenue-funnel / revenue-nrr / revenue-upsell | 付费漏斗+NRR+增购 |
 
-### 模块7：产品监控与迭代
+### 模块8：产品监控与迭代
 
 通过监控预警、问题诊断、迭代优化、发布交付形成持续改进闭环。
 
@@ -153,7 +152,7 @@ ALL/
 | 迭代优化 | iteration-orchestrator | iteration-decision | Backlog优化+迭代复盘 |
 | 发布交付 | release-orchestrator | quality-acceptance / release-gradual / release-auto-checklist / release-notes | 验收报告+灰度发布+检查清单+发布说明 |
 
-### 模块8：项目管理与执行
+### 模块9：项目管理与执行
 
 贯穿全程的项目规划、敏捷执行和风险管理。
 
@@ -167,8 +166,8 @@ ALL/
 
 | 类型 | 数量 | 作用 | 使用方式 |
 |------|------|------|----------|
-| 编排器 Orchestrator | 28 | 调度子 Skill 的执行顺序和阶段卡口 | 按子模块流程使用 |
-| Pipeline Skill | 103 | 单个方法论 Pipeline，可独立执行 | 按需单独调用 |
+| 编排器 Orchestrator | 27 | 调度子 Skill 的执行顺序和阶段卡口 | 按子模块流程使用 |
+| Pipeline Skill | 74 | 单个方法论 Pipeline，可独立执行 | 按需单独调用 |
 | 导航 Guide | 1 | 全流程导航，根据场景推荐模块 | 入口指引 |
 
 ## 输出路径
@@ -214,7 +213,7 @@ output 跟着用户项目走，不跟着 Skill 定义目录走。多项目时各
 
 ## 核心产出文档
 
-103 个 Pipeline Skill 中，17 个产出人类可读的 Markdown 可交付文档，其余 86 个产出 JSON 数据片段供下游 Skill 消费。
+74 个 Pipeline Skill 中，17 个产出人类可读的 Markdown 可交付文档，其余 57 个产出 JSON 数据片段供下游 Skill 消费。
 
 | 生命周期 | 产出文档 | Skill |
 |----------|---------|-------|
