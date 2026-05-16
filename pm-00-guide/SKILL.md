@@ -5,7 +5,7 @@ metadata:
   module: "产品方法论"
   sub-module: "导航入口"
   type: "guide"
-  version: "2.0"
+  version: "3.0"
 ---
 
 # 产品方法论全流程导航
@@ -34,7 +34,7 @@ metadata:
 | 4 | 产品度量设计 | metrics-orchestrator | 开发前，需要设计指标体系和埋点方案 |
 | 5 | 产品度量运营 | analysis-orchestrator / experiment-orchestrator / decision-orchestrator | 上线后，需要数据分析和实验验证 |
 | 6 | 产品增长与运营 | acquisition-orchestrator / activation-orchestrator / retention-orchestrator / revenue-orchestrator | 需要获取用户、提升留存、商业化 |
-| 7 | 产品监控与迭代（含验收发布） | monitoring-orchestrator / diagnosis-orchestrator / iteration-orchestrator | 需要监控预警、问题诊断、迭代优化、验收发布 |
+| 7 | 产品监控与迭代（含验收发布） | monitoring-orchestrator / release-orchestrator / diagnosis-orchestrator / iteration-orchestrator | 需要监控预警、问题诊断、迭代优化、验收发布 |
 | 8 | 项目管理与执行 | project-planning-orchestrator / agile-orchestrator / risk-orchestrator | 贯穿全程的项目管理 |
 
 ## 意图路由
@@ -56,8 +56,8 @@ metadata:
 | 定位 / 差异化 / 竞争优势 | positioning-orchestrator | 中 |
 | 需求分析 / 需求洞察 / KANO / JTBD | insight-orchestrator | 高 |
 | 实验 / A/B测试 / 效果验证 | experiment-orchestrator | 高 |
-| 质量保障 / 测试 / 验收 | quality-acceptance | 中 |
-| 发布 / 上线 / 灰度 | release-gradual / release-auto-checklist / release-notes | 中 |
+| 质量保障 / 测试 / 验收 | quality-acceptance / release-orchestrator | 中 |
+| 发布 / 上线 / 灰度 | release-orchestrator | 高 |
 
 ## 业务场景映射
 
@@ -124,13 +124,13 @@ product-launch-orchestrator
   阶段4：集成验证
     ui-orchestrator
   阶段5：验收与发布
-    quality-acceptance → release-gradual / release-auto-checklist / release-notes
+    release-orchestrator
 ```
 
 关键数据契约：
 - design-orchestrator 输出 PRD → api-design-orchestrator 消费
 - positioning-orchestrator 输出定位陈述 → ui-orchestrator 消费（品牌基因）
-- metrics-orchestrator 输出指标体系 → quality-acceptance 消费（验收标准）
+- metrics-orchestrator 输出指标体系 → release-orchestrator 消费（验收标准）
 - 目标语言：用户在启动时指定（默认zh-CN），全链路传递至 ui-orchestrator
 
 ### 模板2：从0到1做C端/移动端产品
@@ -149,7 +149,7 @@ product-launch-orchestrator
   阶段4：前端优先开发
     ui-orchestrator
   阶段5：验收与发布
-    quality-acceptance → release-gradual / release-auto-checklist / release-notes
+    release-orchestrator
 ```
 
 关键数据契约：
@@ -168,7 +168,7 @@ product-launch-orchestrator
   design-orchestrator（仅更新变更部分）→ metrics-orchestrator（补充新指标）
 
 阶段3：验证与发布
-  quality-acceptance → release-gradual / release-auto-checklist / release-notes
+  release-orchestrator
 
 阶段4：效果验证
   experiment-orchestrator → analysis-orchestrator（对比前后数据）
@@ -188,7 +188,7 @@ product-launch-orchestrator
   experiment-orchestrator
 
 阶段3：规模化
-  release-gradual / release-notes（全量发布增长方案）
+  release-orchestrator（全量发布增长方案）
 ```
 
 关键数据契约：
@@ -211,7 +211,7 @@ product-iteration-orchestrator
     └── 无变更 → 跳过
   阶段4：集成与交付
     ui-orchestrator（仅API变更时）
-    → quality-acceptance → release-gradual / release-auto-checklist / release-notes
+    → release-orchestrator
 ```
 
 关键数据契约：
@@ -262,7 +262,7 @@ ALL/
 │   ├── orchestrators/（5个编排器）
 │   └── skills/（11个Pipeline）
 ├── pm-07-monitoring/                   ← 模块7：产品监控与迭代（含验收发布）
-│   ├── orchestrators/（3个编排器）
+│   ├── orchestrators/（4个编排器）
 │   └── skills/（11个Pipeline，含quality-acceptance、release-gradual、release-auto-checklist、release-notes）
 └── pm-08-project/                      ← 模块8：项目管理与执行
     ├── orchestrators/（3个编排器）
@@ -433,6 +433,64 @@ output/pm-{源模块}/{源skill-name}/{文件名}
 ```
 
 > 注：校验规则为渐进式添加。核心 Skill（design-prd、api-design、design-system、metrics-system 等）已包含完整校验规则，其余 Skill 按需补充。
+
+## 全局质量门禁规范
+
+所有编排器和 Pipeline Skill 必须遵循以下统一的质量门禁规范，确保降级输出不会无条件流入下游。
+
+### 置信度分级标准
+
+| 等级 | 范围 | 含义 | 传递规则 |
+|------|------|------|----------|
+| 高 | ≥ 0.7 | 数据充分、多源验证 | 可自动传递下游 |
+| 中 | 0.3 - 0.7 | 数据部分缺失或单一来源 | 传递下游时标注 `confidence: medium`，编排器阶段卡口需人类确认 |
+| 低 | < 0.3 | 核心数据缺失或AI推断 | **阻断自动传递**，必须人类确认后才可传递下游 |
+
+### 降级输出阻断规则
+
+| 降级场景 | 阻断条件 | 处理方式 |
+|----------|----------|----------|
+| 上游 Skill 输出整体置信度 < 0.3 | 编排器阶段卡口检测到上游输出 `overall_confidence < 0.3` | 阻断进入下一阶段，输出低置信度报告，要求人类确认是否继续 |
+| 必填字段缺失且 AI 自动补填 | 输出校验检测到 `auto_filled: true` 字段 | 标注该字段，编排器阶段卡口汇总所有 `auto_filled` 字段，要求人类逐项确认 |
+| 降级策略执行后输出质量降级 | Skill 降级策略中明确标注"输出影响"为"简化"或"不完整" | 编排器在阶段卡口标注 `degraded_output: true`，人类确认后才传递下游 |
+| 所有上游数据缺失 | Skill 被迫基于 AI 知识库推断生成 | 整体置信度上限设为 0.3，强制阻断，人类必须确认 |
+
+### AI 自动执行 Skill 输入预检规范
+
+以下 Skill 采用 `ai_auto` 交互模式（AI 自动执行，无需人类实时审批），必须在执行前进行输入完整性预检：
+
+| Skill | 预检必填项 | 预检失败处理 |
+|-------|-----------|-------------|
+| analysis-anomaly | 指标体系定义 + 告警规则 | 切换为 `ai_suggest_human_approve`，要求人类提供指标体系 |
+| analysis-funnel | 漏斗定义 + 事件数据 | 切换为 `ai_suggest_human_approve`，要求人类提供漏斗和事件数据 |
+| analysis-retention | 用户行为数据 + 分群定义 | 切换为 `ai_suggest_human_approve`，要求人类提供行为数据 |
+| experiment-execution | 实验配置 + 护栏指标定义 | 阻断执行，要求人类提供实验配置 |
+| release-gradual | 发布计划 + 监控配置 | 阻断执行，要求人类提供发布计划 |
+| release-auto-checklist | 发布内容 + 环境配置 | 切换为 `ai_suggest_human_approve`，要求人类提供发布内容 |
+| risk-management | 风险登记册 + 升级规则 | 切换为 `ai_suggest_human_approve`，要求人类提供风险登记册 |
+| monitoring-pipeline | 指标体系 + SLA 要求 | 切换为 `ai_suggest_human_approve`，要求人类提供监控配置 |
+| agile-daily-sync | Sprint Backlog | 切换为 `ai_suggest_human_approve`，要求人类提供 Sprint 计划 |
+
+**预检规则**：
+1. 执行前检查所有必填输入是否存在且非空
+2. 必填输入缺失 → 按上表处理（切换交互模式或阻断）
+3. 可选输入缺失 → 正常执行，相关章节标注"待补充"
+4. 预检结果记录在输出文件的 `pre_check` 字段中
+
+### 编排器统一异常策略
+
+所有编排器在遇到"所有上游数据全部缺失"时，统一采用以下策略：
+
+```
+1. 标注"全数据缺失"状态
+2. 输出最小化模板（仅含元信息和空结构）
+3. 整体置信度设为 0.3
+4. 强制人类确认是否继续
+5. 人类确认后，基于用户提供的信息和 AI 知识库推断生成
+6. 所有推断内容标注 confidence ≤ 0.5 和 needs_human_validation: true
+```
+
+此策略替代此前各模块不一致的处理方式（pm-01 降级执行 / pm-02 终止编排 / pm-08 输出最小化），统一为"最小化输出 + 强制人类确认 + 降级标注"。
 
 ## AI能力边界
 

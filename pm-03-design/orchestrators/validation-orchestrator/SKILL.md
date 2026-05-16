@@ -37,56 +37,52 @@ metadata:
 
 ## 编排协议
 
-你是编排器，职责是**按阶段调度子Skill执行**，而非代理执行子Skill逻辑。严格遵循以下协议：
-
-### 调用规则
-
-1. **显式调用**：使用 `Skill` 工具调用子Skill，传递输入数据，接收输出结果
-2. **不代理执行**：不读取子Skill的SKILL.md来替代执行，不自行推断子Skill的内部逻辑
-3. **契约驱动**：只关注子Skill的输入契约、输出契约和验证条件，不关注内部实现
-4. **状态传递**：将当前阶段的输出作为下一阶段的输入，通过文件路径传递数据
-5. **验证后推进**：每个阶段输出验证通过后，才推进到下一阶段
-6. **阶段总结（强制）**：Pipeline 所有 stages 执行完成后，**必须立即**执行 `post_pipeline` 中定义的阶段总结动作，生成总结文档。这不是可选步骤，若未生成阶段总结，编排器执行视为未完成。
-
-### 上下文管理
-
-- 每个子Skill调用完成后，只保留**输出文件路径**和**关键结论摘要**
-- 详细输出写入 `output/pm-design/{skill-name}/` 目录
-- 若上下文接近上限，优先保留当前阶段内容和待执行阶段的子Skill名称
-
-### 阶段总结
-
-所有子Skill执行完成后，编排器必须生成一份阶段总结文档，写入 `output/phase-reports/pm-design/validation-orchestrator.md`，包含以下结构：
-
-1. **执行概览**：编排器名称与版本、执行时间、子Skill执行状态（成功/失败/降级）
-2. **关键发现**：每个子Skill的核心输出摘要（1-3条）、跨子Skill的交叉洞察
-3. **决策记录**：人类决策点及决策结果、AI自动决策及依据
-4. **产出清单**：所有输出文件路径及内容摘要、产出质量评估（是否通过验证）
-5. **风险与待办**：未通过验证的项、降级执行的项、建议后续跟进的事项
-6. **下游衔接**：本编排器产出可被哪些下游编排器消费、推荐的下一步编排器
+编排协议遵循 [orchestrator-protocol.md](../../templates/orchestrator-protocol.md) 统一标准。
 
 ## Pipeline
 
 ```yaml
-pipeline:
-  post_pipeline:
-    - action: stage-summary
-      output: output/phase-reports/pm-design/validation-orchestrator.md
-  stages:
-    - id: validation-assumption-map
-      name: 假设地图
-      depends_on: []
-    - id: validation-mvp
-      name: MVP范围界定
-      depends_on: [validation-assumption-map]
-    - id: validation-experiment
-      name: 实验设计
-      depends_on: [validation-assumption-map, validation-mvp]
-      parallel_with: [validation-usability]
-    - id: validation-usability
-      name: 可用性测试
-      depends_on: [validation-assumption-map, validation-mvp]
-      parallel_with: [validation-experiment]
+pipeline: validation-orchestrator
+version: 6.1
+
+post_pipeline:
+  - action: stage-summary
+    output: output/phase-reports/pm-design/validation-orchestrator.md
+
+stages:
+  - id: phase-1
+    name: "假设地图"
+    depends_on: []
+    skills: [validation-assumption-map]
+    gate:
+      condition: "最大风险假设已识别，每个功能点至少1个假设"
+      fail_action: "每个功能点至少1个假设，最大风险假设必须有验证计划"
+
+  - id: phase-2
+    name: "MVP范围界定"
+    depends_on: [phase-1]
+    skills: [validation-mvp]
+    gate:
+      condition: "MVP占比<60%，Must Have功能都有假设关联"
+      fail_action: "MVP占比>60%升级人类判断，确认是否调整"
+
+  - id: phase-3
+    name: "实验设计"
+    depends_on: [phase-1, phase-2]
+    parallel_with: [phase-4]
+    skills: [validation-experiment]
+    gate:
+      condition: "实验方案人类已审核，含验证方法、样本量、时长、终止条件"
+      fail_action: "所有实验方案必须人类审核"
+
+  - id: phase-4
+    name: "可用性测试"
+    depends_on: [phase-1, phase-2]
+    parallel_with: [phase-3]
+    skills: [validation-usability]
+    gate:
+      condition: "问题严重程度分级合理（P0/P1/P2/P3），洞察与假设地图有对应关系"
+      fail_action: "测试执行必须由人类研究员主持"
 ```
 
 ## 阶段执行计划
@@ -97,7 +93,7 @@ pipeline:
 Skill: validation-assumption-map
 输入:
   design_output: output/pm-design/design-prototype/prototype_spec.json（或output/pm-design/design-userflow/userflow.json）
-  prd: output/pm-design/design-prd/PRD-{产品名}.md
+  prd: output/pm-design/design-prd/prd.md
 输出: output/pm-design/validation-assumption-map/assumption_map.json
 验证: 最大风险假设已识别，每个功能点至少1个假设
 模式: 🤖
@@ -153,6 +149,16 @@ Skill: validation-usability
   人类决策记录: 本轮执行中的人类决策点及结果
 输出: output/phase-reports/pm-design/validation-orchestrator.md
 验证: 阶段总结文档已生成，6项结构（执行概览/关键发现/决策记录/产出清单/风险与待办/下游衔接）均非空
+下游衔接:
+  primary:
+    target: design-orchestrator
+    reason: 方案验证完成，建议进入产品设计阶段，基于验证结论调整设计方案
+    input_mapping:
+      validation_output: "output/pm-design/validation-assumption-map/ + validation-mvp/ → design-prd输入"
+  alternatives:
+    - target: experiment-orchestrator
+      reason: 如验证结论需要A/B测试进一步确认
+      condition: 验证结果不确定，需要量化实验验证时
 模式: 🤖
 ```
 
@@ -162,10 +168,10 @@ Skill: validation-usability
 
 | 卡口 | 条件 | 未通过处理 |
 |------|------|------------|
-| 假设地图完成 | 最大风险假设已识别 | 每个功能点至少1个假设，最大风险假设必须有验证计划 |
-| MVP范围完成 | MVP占比<60% | MVP占比>60%升级人类判断，确认是否调整 |
+| 假设地图完成 | validation-assumption-map输出文件已生成且非空 | 每个功能点至少1个假设，最大风险假设必须有验证计划 |
+| MVP范围完成 | validation-mvp-scope输出文件已生成且非空 | MVP占比>60%升级人类判断，确认是否调整 |
 | 实验设计完成 | 实验方案人类已审核 | 所有实验方案必须人类审核 |
-| 可用性测试完成 | 问题严重程度分级合理 | 测试执行必须由人类研究员主持 |
+| 可用性测试完成 | validation-usability-test输出文件已生成且非空 | 测试执行必须由人类研究员主持 |
 | 阶段总结已生成 | output/phase-reports/pm-design/validation-orchestrator.md 已生成且6项结构均非空 | 补充缺失结构项后重新生成 |
 
 ## 人类决策点

@@ -28,49 +28,42 @@ Sprint的价值不在于完成更多Story，而在于建立可持续的交付节
 
 ## 编排协议
 
-你是编排器，职责是**按阶段调度子Skill执行**，而非代理执行子Skill逻辑。严格遵循以下协议：
-
-### 调用规则
-
-1. **显式调用**：使用 `Skill` 工具调用子Skill，传递输入数据，接收输出结果
-2. **不代理执行**：不读取子Skill的SKILL.md来替代执行，不自行推断子Skill的内部逻辑
-3. **契约驱动**：只关注子Skill的输入契约、输出契约和验证条件，不关注内部实现
-4. **状态传递**：将当前阶段的输出作为下一阶段的输入，通过文件路径传递数据
-5. **验证后推进**：每个阶段输出验证通过后，才推进到下一阶段
-6. **阶段总结（强制）**：Pipeline 所有 stages 执行完成后，**必须立即**执行 `post_pipeline` 中定义的阶段总结动作，生成总结文档。这不是可选步骤，若未生成阶段总结，编排器执行视为未完成。
-
-### 上下文管理
-
-- 每个子Skill调用完成后，只保留**输出文件路径**和**关键结论摘要**
-- 详细输出写入对应模块的 `output/pm-project/{skill-name}/` 目录
-- 若上下文接近上限，优先保留当前阶段内容和待执行阶段的子Skill名称
-
-### 阶段总结
-
-所有子Skill执行完成后，编排器必须生成一份阶段总结文档，写入 `output/phase-reports/pm-project/agile-orchestrator.md`，包含以下结构：
-
-1. **执行概览**：编排器名称与版本、执行时间、子Skill执行状态（成功/失败/降级）
-2. **关键发现**：每个子Skill的核心输出摘要（1-3条）、跨子Skill的交叉洞察
-3. **决策记录**：人类决策点及决策结果、AI自动决策及依据
-4. **产出清单**：所有输出文件路径及内容摘要、产出质量评估（是否通过验证）
-5. **风险与待办**：未通过验证的项、降级执行的项、建议后续跟进的事项
-6. **下游衔接**：本编排器产出可被哪些下游编排器消费、推荐的下一步编排器
+编排协议遵循 [orchestrator-protocol.md](../../templates/orchestrator-protocol.md) 统一标准。
 
 ## Pipeline
 
 ```yaml
+pipeline: agile-orchestrator
+version: 7.0
+
 post_pipeline:
   - action: stage-summary
     output: output/phase-reports/pm-project/agile-orchestrator.md
-pipeline:
-  - stage: agile-sprint-planning
-    gate: Sprint计划已确认
-  - stage: agile-daily-sync
-    depends_on: [agile-sprint-planning]
-    gate: Daily Sync障碍已暴露
-  - stage: agile-review
-    depends_on: [agile-sprint-planning, agile-daily-sync]
-    gate: Sprint评审与复盘报告已完成
+
+stages:
+  - id: phase-1
+    name: "Sprint规划"
+    depends_on: []
+    skills: [agile-sprint-planning]
+    gate:
+      condition: "Sprint计划已确认"
+      fail_action: "暂停Sprint启动，补充规划"
+
+  - id: phase-2
+    name: "每日同步"
+    depends_on: [phase-1]
+    skills: [agile-daily-sync]
+    gate:
+      condition: "Daily Sync障碍已暴露"
+      fail_action: "加强障碍追踪和升级机制"
+
+  - id: phase-3
+    name: "Sprint评审与复盘"
+    depends_on: [phase-1, phase-2]
+    skills: [agile-review]
+    gate:
+      condition: "Sprint评审与复盘报告已完成"
+      fail_action: "补充分析或修改行动项"
 ```
 
 ## 阶段执行计划
@@ -131,6 +124,19 @@ Skill: agile-review
   人类决策记录: 本轮执行中的人类决策点及结果
 输出: output/phase-reports/pm-project/agile-orchestrator.md
 验证: 阶段总结文档已生成，6项结构（执行概览/关键发现/决策记录/产出清单/风险与待办/下游衔接）均非空
+下游衔接:
+  primary:
+    target: agile-orchestrator
+    reason: Sprint完成，建议进入下一Sprint规划，持续迭代
+    input_mapping:
+      retro_output: "output/pm-project/agile-review/sprint-retro-S{NN}.json → agile-sprint-planning输入"
+  alternatives:
+    - target: release-orchestrator
+      reason: 如Sprint产出已满足发布条件
+      condition: Sprint交付物达到发布标准时
+    - target: monitoring-orchestrator
+      reason: 如Sprint复盘发现需加强监控
+      condition: 复盘发现线上问题频发时
 模式: 🤖
 ```
 
@@ -140,9 +146,9 @@ Skill: agile-review
 
 | 卡口 | 条件 | 未通过处理 |
 |------|------|------------|
-| Sprint计划已确认 | Sprint Goal已定义，Story已分配，容量已确认 | 暂停Sprint启动，补充规划 |
-| Daily Sync障碍已暴露 | 每日障碍已识别并标记，重大障碍已升级 | 加强障碍追踪和升级机制 |
-| Sprint评审与复盘报告已完成 | Sprint评审完成且复盘报告经人类审核确认，回顾洞察已生成 | 补充分析或修改行动项 |
+| Sprint计划已确认 | sprint-planning输出文件已生成且非空 | 暂停Sprint启动，补充规划 |
+| Daily Sync障碍已暴露 | daily-sync输出文件已生成且非空 | 加强障碍追踪和升级机制 |
+| Sprint评审与复盘报告已完成 | sprint-review输出文件已生成且人类审核确认 | 补充分析或修改行动项 |
 | 阶段总结已生成 | output/phase-reports/pm-project/agile-orchestrator.md 已生成且6项结构均非空 | 补充缺失结构项后重新生成 |
 
 ## 人类决策点
@@ -160,7 +166,7 @@ Skill: agile-review
 | 阶段1子Skill（Sprint规划）失败 | 暂停Sprint启动，输出失败原因，提示用户补充Backlog或调整团队容量后重试 |
 | 上游数据缺失（如Backlog、团队容量） | 用占位数据生成草稿版Sprint计划，标注低置信度，提示用户补充后重新规划 |
 | 关键决策点未获人类确认（如Sprint Goal） | 暂停进入下一阶段，持续等待确认，超时后升级提醒 |
-| 所有上游数据全部缺失 | 输出最小化Sprint框架模板，标注全部为待填充，要求用户提供基础信息后重新执行 |
+| 所有上游数据全部缺失 | 标注"全数据缺失"状态，输出最小化模板（仅含元信息和空结构），整体置信度设为0.3，强制人类确认是否继续。人类确认后基于用户提供信息和AI知识库推断生成，所有推断内容标注confidence≤0.5和needs_human_validation:true |
 | 阶段总结生成失败 | 基于已完成的子Skill输出生成部分总结，缺失项标注"数据缺失"，不阻塞编排完成 |
 
 ## 变更记录

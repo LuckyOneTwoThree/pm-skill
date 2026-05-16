@@ -31,68 +31,88 @@ metadata:
 
 ## 编排协议
 
-你是编排器，职责是**按阶段调度子Skill执行**，而非代理执行子Skill逻辑。严格遵循以下协议：
-
-### 调用规则
-
-1. **显式调用**：使用 `Skill` 工具调用子Skill，传递输入数据，接收输出结果
-2. **不代理执行**：不读取子Skill的SKILL.md来替代执行，不自行推断子Skill的内部逻辑
-3. **契约驱动**：只关注子Skill的输入契约、输出契约和验证条件，不关注内部实现
-4. **状态传递**：将当前阶段的输出作为下一阶段的输入，通过文件路径传递数据
-5. **验证后推进**：每个阶段输出验证通过后，才推进到下一阶段
-6. **阶段总结（强制）**：Pipeline 所有 stages 执行完成后，**必须立即**执行 `post_pipeline` 中定义的阶段总结动作，生成总结文档。这不是可选步骤，若未生成阶段总结，编排器执行视为未完成。
-
-### 上下文管理
-
-- 每个子Skill调用完成后，只保留**输出文件路径**和**关键结论摘要**
-- 详细输出写入对应模块的 `output/pm-growth/{skill-name}/` 目录
-- 若上下文接近上限，优先保留当前阶段内容和待执行阶段的子Skill名称
-
-### 阶段总结
-
-所有子Skill执行完成后，编排器必须生成一份阶段总结文档，写入 `output/phase-reports/pm-growth/growth-orchestrator.md`，包含以下结构：
-
-1. **执行概览**：编排器名称与版本、执行时间、子Skill执行状态（成功/失败/降级）
-2. **关键发现**：每个子Skill的核心输出摘要（1-3条）、跨子Skill的交叉洞察
-3. **决策记录**：人类决策点及决策结果、AI自动决策及依据
-4. **产出清单**：所有输出文件路径及内容摘要、产出质量评估（是否通过验证）
-5. **风险与待办**：未通过验证的项、降级执行的项、建议后续跟进的事项
-6. **下游衔接**：本编排器产出可被哪些下游编排器消费、推荐的下一步编排器
+编排协议遵循 [orchestrator-protocol.md](../../templates/orchestrator-protocol.md) 统一标准。
 
 ## Pipeline
 
 ```yaml
-pipeline:
-  post_pipeline:
-    - action: stage-summary
-      output: output/phase-reports/pm-growth/growth-orchestrator.md
-  - stage: growth-model
-    gate: 增长模式已确定，飞轮模型已构建
-  - stage: acquisition-orchestrator
-    depends_on: [growth-model]
+pipeline: growth-orchestrator
+version: 8.0
+
+post_pipeline:
+  - action: stage-summary
+    output: output/phase-reports/pm-growth/growth-orchestrator.md
+
+stages:
+  - id: phase-1
+    name: "增长模式诊断"
+    depends_on: []
+    skills: [growth-model]
+    gate:
+      condition: "增长模式已确定，飞轮模型已构建"
+      fail_action: "补充产品特征和用户数据"
+
+  - id: phase-2
+    name: "获客优化"
+    depends_on: [phase-1]
+    skills: [acquisition-orchestrator]
     trigger: 获客为瓶颈
-    gate: 渠道评估完成且漏斗优化方案已生成
-  - stage: activation-orchestrator
-    depends_on: [growth-model]
+    gate:
+      condition: "渠道评估完成且漏斗优化方案已生成"
+      fail_action: "补充缺失渠道数据或延长分析周期"
+
+  - id: phase-3
+    name: "激活优化"
+    depends_on: [phase-1]
+    skills: [activation-orchestrator]
     trigger: 激活为瓶颈
-    gate: Aha Moment候选已识别且Onboarding策略已生成
-  - stage: retention-orchestrator
-    depends_on: [growth-model]
+    gate:
+      condition: "Aha Moment候选已识别且Onboarding策略已生成"
+      fail_action: "扩大行为搜索范围或补充分群数据"
+
+  - id: phase-4
+    name: "留存优化"
+    depends_on: [phase-1]
+    skills: [retention-orchestrator]
     trigger: 留存为瓶颈
-    gate: 流失预警模型已构建且用户分层已完成
-  - stage: revenue-orchestrator
-    depends_on: [growth-model]
+    gate:
+      condition: "流失预警模型已构建且用户分层已完成"
+      fail_action: "优化模型或补充训练数据"
+
+  - id: phase-5
+    name: "变现优化"
+    depends_on: [phase-1]
+    skills: [revenue-orchestrator]
     trigger: 变现为瓶颈
-    gate: 付费漏斗分析完成且NRR追踪已建立
-  - stage: growth-strategy-report
-    depends_on: [growth-model]
-    gate: 增长策略报告经人类确认
-  - stage: gtm-strategy
-    trigger: 新产品上市 / 市场拓展
-    gate: GTM策略经人类确认
-  - stage: product-operations-manual
+    gate:
+      condition: "付费漏斗分析完成且NRR追踪已建立"
+      fail_action: "补充漏斗步骤定义或数据"
+
+  - id: phase-6
+    name: "增长策略报告"
+    depends_on: [phase-1, phase-2, phase-3, phase-4, phase-5]
+    skills: [growth-strategy-report]
+    gate:
+      condition: "增长策略报告经人类确认"
+      fail_action: "调整策略方向和执行路线图"
+
+  - id: phase-7
+    name: "GTM策略"
+    depends_on: [phase-1]
+    skills: [gtm-strategy]
+    trigger: 新产品上市/市场拓展
+    gate:
+      condition: "GTM策略经人类确认"
+      fail_action: "确认上市路径和渠道策略"
+
+  - id: phase-8
+    name: "运营手册"
+    depends_on: [phase-1]
+    skills: [product-operations-manual]
     trigger: 运营手册制定需求
-    gate: 运营手册经人类确认
+    gate:
+      condition: "运营手册经人类确认"
+      fail_action: "确认运营SOP和应急流程"
 ```
 
 ## 阶段执行计划
@@ -231,6 +251,19 @@ Skill: product-operations-manual
   人类决策记录: 本轮执行中的人类决策点及结果
 输出: output/phase-reports/pm-growth/growth-orchestrator.md
 验证: 阶段总结文档已生成，6项结构（执行概览/关键发现/决策记录/产出清单/风险与待办/下游衔接）均非空
+下游衔接:
+  primary:
+    target: experiment-orchestrator
+    reason: 增长策略制定完成，建议进入实验验证阶段，量化验证增长方案效果
+    input_mapping:
+      growth_output: "output/pm-growth/growth-strategy-report/ → experiment-design输入"
+  alternatives:
+    - target: release-orchestrator
+      reason: 如增长方案已验证，直接全量发布
+      condition: 增长方案已有充分数据支撑，无需实验验证时
+    - target: growth-orchestrator
+      reason: 如是新产品上市，进入GTM策略阶段（growth-orchestrator内部phase-7）
+      condition: 增长诊断结论为新产品需上市时
 模式: 🤖
 ```
 
@@ -240,8 +273,8 @@ Skill: product-operations-manual
 
 | 卡口 | 条件 | 未通过处理 |
 |------|------|------------|
-| 增长模式诊断完成 | 增长模式已确定，飞轮模型已构建 | 补充产品特征和用户数据 |
-| 瓶颈环节已识别 | 至少1个瓶颈环节已定位 | 延长分析周期或扩大数据范围 |
+| 增长模式诊断完成 | growth-model输出文件已生成且非空 | 补充产品特征和用户数据 |
+| 瓶颈环节已识别 | growth-bottleneck输出文件已生成且非空 | 延长分析周期或扩大数据范围 |
 | 增长策略报告已确认 | 增长策略报告经人类确认 | 调整策略方向和执行路线图 |
 | 阶段总结已生成 | output/phase-reports/pm-growth/growth-orchestrator.md 已生成且6项结构均非空 | 补充缺失结构项后重新生成 |
 

@@ -28,50 +28,42 @@ metadata:
 
 ## 编排协议
 
-你是编排器，职责是**按阶段调度子Skill执行**，而非代理执行子Skill逻辑。严格遵循以下协议：
-
-### 调用规则
-
-1. **显式调用**：使用 `Skill` 工具调用子Skill，传递输入数据，接收输出结果
-2. **不代理执行**：不读取子Skill的SKILL.md来替代执行，不自行推断子Skill的内部逻辑
-3. **契约驱动**：只关注子Skill的输入契约、输出契约和验证条件，不关注内部实现
-4. **状态传递**：将当前阶段的输出作为下一阶段的输入，通过文件路径传递数据
-5. **验证后推进**：每个阶段输出验证通过后，才推进到下一阶段
-6. **阶段总结（强制）**：Pipeline 所有 stages 执行完成后，**必须立即**执行 `post_pipeline` 中定义的阶段总结动作，生成总结文档。这不是可选步骤，若未生成阶段总结，编排器执行视为未完成。
-
-### 上下文管理
-
-- 每个子Skill调用完成后，只保留**输出文件路径**和**关键结论摘要**
-- 详细输出写入对应模块的 `output/pm-metrics-design/{skill-name}/` 目录
-- 若上下文接近上限，优先保留当前阶段内容和待执行阶段的子Skill名称
-
-### 阶段总结
-
-所有子Skill执行完成后，编排器必须生成一份阶段总结文档，写入 `output/phase-reports/pm-metrics-design/metrics-orchestrator.md`，包含以下结构：
-
-1. **执行概览**：编排器名称与版本、执行时间、子Skill执行状态（成功/失败/降级）
-2. **关键发现**：每个子Skill的核心输出摘要（1-3条）、跨子Skill的交叉洞察
-3. **决策记录**：人类决策点及决策结果、AI自动决策及依据
-4. **产出清单**：所有输出文件路径及内容摘要、产出质量评估（是否通过验证）
-5. **风险与待办**：未通过验证的项、降级执行的项、建议后续跟进的事项
-6. **下游衔接**：本编排器产出可被哪些下游编排器消费、推荐的下一步编排器
+编排协议遵循 [orchestrator-protocol.md](../../templates/orchestrator-protocol.md) 统一标准。
 
 ## Pipeline
 
 ```yaml
-pipeline:
-  post_pipeline:
-    - action: stage-summary
-      output: output/phase-reports/pm-metrics-design/metrics-orchestrator.md
-  stages:
-    - stage: metrics-system
-      gate: 北极星指标人类已选择
-    - stage: tracking-plan
-      depends_on: [metrics-system]
-      gate: 埋点方案人类已审核
-    - stage: metrics-dashboard
-      depends_on: [metrics-system, tracking-plan]
-      gate: Dashboard布局人类已确认
+pipeline: metrics-orchestrator
+version: 6.1
+
+post_pipeline:
+  - action: stage-summary
+    output: output/phase-reports/pm-metrics-design/metrics-orchestrator.md
+
+stages:
+  - id: phase-1
+    name: "指标体系"
+    depends_on: []
+    skills: [metrics-system]
+    gate:
+      condition: "北极星指标人类已选择"
+      fail_action: "北极星指标必须人类决策，AI只提供候选和分析"
+
+  - id: phase-2
+    name: "埋点方案"
+    depends_on: [phase-1]
+    skills: [tracking-plan]
+    gate:
+      condition: "埋点方案人类已审核"
+      fail_action: "业务逻辑正确性和隐私合规性必须人类确认"
+
+  - id: phase-3
+    name: "Dashboard配置"
+    depends_on: [phase-1, phase-2]
+    skills: [metrics-dashboard]
+    gate:
+      condition: "Dashboard布局人类已确认"
+      fail_action: "布局合理性和告警阈值需人类审核"
 ```
 
 ## 阶段执行计划
@@ -126,6 +118,17 @@ Skill: metrics-dashboard
   人类决策记录: 本轮执行中的人类决策点及结果
 输出: output/phase-reports/pm-metrics-design/metrics-orchestrator.md
 验证: 阶段总结文档已生成，6项结构（执行概览/关键发现/决策记录/产出清单/风险与待办/下游衔接）均非空
+下游衔接:
+  primary:
+    target: monitoring-orchestrator
+    reason: 度量设计完成，建议进入监控预警阶段，将指标体系和埋点方案落地为监控配置
+    input_mapping:
+      metrics_output: "output/pm-metrics-design/metrics-system/ → monitoring-pipeline输入"
+      tracking_output: "output/pm-metrics-design/tracking-plan/ → 开发阶段埋点实现"
+  alternatives:
+    - target: design-orchestrator
+      reason: 如度量设计发现PRD功能点遗漏，需回溯补充设计
+      condition: 指标体系设计中发现PRD功能点覆盖不完整时
 模式: 🤖
 ```
 

@@ -23,35 +23,20 @@ metadata:
 3. **Problem Statement是锚点**——所有HMW和Brief都锚定在Problem Statement上，Problem Statement质量不通过则后续输出不可信
 4. **人类判定三个关键节点**——战略契合度评分人类判定、Problem Statement质量3次不通过人类仲裁、Brief最终决策人类审批
 
+## 编排器定位声明
+
+本编排器当前 Pipeline 仅包含 1 个子 Skill（opportunity-definition），属于合并简化后的退化编排器。保留本编排器的理由：
+
+1. **统一入口**：为机会识别子模块提供标准化的调用入口，上层编排器（如 product-launch-orchestrator）无需关心内部子 Skill 的合并历史
+2. **阶段总结**：强制生成阶段总结文档（post_pipeline），确保子模块产出可审计、可追溯
+3. **异常处理**：提供统一的异常处理策略和降级方案，子 Skill 自身的降级策略不覆盖编排器层面的异常拦截
+4. **人类决策点**：在子 Skill 执行前后提供人类决策卡口，确保关键结论经人类确认后才传递下游
+
+若未来该子模块需要扩展为多阶段 Pipeline，本编排器可直接增加阶段，无需修改上层编排器的调用方式。
+
 ## 编排协议
 
-你是编排器，职责是**按阶段调度子Skill执行**，而非代理执行子Skill逻辑。严格遵循以下协议：
-
-### 调用规则
-
-1. **显式调用**：使用 `Skill` 工具调用子Skill，传递输入数据，接收输出结果
-2. **不代理执行**：不读取子Skill的SKILL.md来替代执行，不自行推断子Skill的内部逻辑
-3. **契约驱动**：只关注子Skill的输入契约、输出契约和验证条件，不关注内部实现
-4. **状态传递**：将当前阶段的输出作为下一阶段的输入，通过文件路径传递数据
-5. **验证后推进**：每个阶段输出验证通过后，才推进到下一阶段
-6. **阶段总结（强制）**：Pipeline 所有 stages 执行完成后，**必须立即**执行 `post_pipeline` 中定义的阶段总结动作，生成总结文档。这不是可选步骤，若未生成阶段总结，编排器执行视为未完成。
-
-### 上下文管理
-
-- 每个子Skill调用完成后，只保留**输出文件路径**和**关键结论摘要**
-- 详细输出写入 `output/pm-discovery/{skill-name}/` 目录
-- 若上下文接近上限，优先保留当前阶段内容和待执行阶段的子Skill名称
-
-### 阶段总结
-
-所有子Skill执行完成后，编排器必须生成一份阶段总结文档，写入 `output/phase-reports/pm-discovery/opportunity-orchestrator.md`，包含以下结构：
-
-1. **执行概览**：编排器名称与版本、执行时间、子Skill执行状态（成功/失败/降级）
-2. **关键发现**：每个子Skill的核心输出摘要（1-3条）、跨子Skill的交叉洞察
-3. **决策记录**：人类决策点及决策结果、AI自动决策及依据
-4. **产出清单**：所有输出文件路径及内容摘要、产出质量评估（是否通过验证）
-5. **风险与待办**：未通过验证的项、降级执行的项、建议后续跟进的事项
-6. **下游衔接**：本编排器产出可被哪些下游编排器消费、推荐的下一步编排器
+编排协议遵循 [orchestrator-protocol.md](../../templates/orchestrator-protocol.md) 统一标准。
 
 ## Pipeline 定义
 
@@ -108,6 +93,16 @@ Skill: opportunity-definition
   人类决策记录: 本轮执行中的人类决策点及结果
 输出: output/phase-reports/pm-discovery/opportunity-orchestrator.md
 验证: 阶段总结文档已生成，6项结构（执行概览/关键发现/决策记录/产出清单/风险与待办/下游衔接）均非空
+下游衔接:
+  primary:
+    target: business-orchestrator
+    reason: 机会定义完成，建议进入商业模式设计阶段，将机会转化为可持续的商业模式
+    input_mapping:
+      opportunity_output: "output/pm-discovery/opportunity-definition/ → business-model-canvas输入"
+  alternatives:
+    - target: design-orchestrator
+      reason: 如已有商业模式，直接进入产品设计
+      condition: 商业模式已确定，无需重新设计时
 模式: 🤖
 ```
 
@@ -117,12 +112,9 @@ Skill: opportunity-definition
 
 | 卡口 | 条件 | 未通过处理 |
 |------|------|------------|
-| 阶段1完成 | opportunity-definition.json 已生成且4个子步骤验证通过 | 按子步骤失败原因分别处理 |
-| 战略契合度已人类判定 | scoring中strategic_fit.needs_human已由人类确认评分 | 等待人类判定战略契合度 |
-| Problem Statement质量检查通过 | problem_statement.quality_check.all_passed=true | 质量检查不通过则自动重试（最多3次），3次仍不通过升级人类 |
-| HMW维度覆盖完整 | hmw.dimension_coverage中4个维度均≥1 | 补充Problem Statement或用户研究数据 |
-| Brief证据摘要完整 | brief.evidence_summary的3个子字段均有内容 | 补充上游数据 |
-| Opportunity Brief人类已决策 | brief.human_decisions_needed中各项已确认 | 等待人类审批决策项 |
+| 阶段1完成 | opportunity-definition.json 已生成且非空 | 按子步骤失败原因分别处理 |
+| 战略契合度人类已确认 | 人类已确认战略契合度评分 | 等待人类判定战略契合度 |
+| Opportunity Brief人类已确认 | 人类已审批Opportunity Brief | 等待人类审批决策项 |
 | 阶段总结已生成 | output/phase-reports/pm-discovery/opportunity-orchestrator.md 已生成且6项结构均非空 | 补充缺失结构项后重新生成 |
 
 ## 人类决策点
